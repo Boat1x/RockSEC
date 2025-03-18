@@ -94,11 +94,11 @@ export default function SimpleTable() {
   // Helper function to get color for severity
   const getSeverityColor = (severity: string): string => {
     switch (severity) {
-      case 'Critical': return '#FF1744';
-      case 'High': return '#F44336';
-      case 'Medium': return '#FFC107';
-      case 'Low': return '#03DAC6';
-      default: return '#03DAC6';
+      case 'Critical': return '#d32f2f'; // Darker red
+      case 'High': return '#f44336'; // Red
+      case 'Medium': return '#ff9800'; // Orange
+      case 'Low': return '#03a9f4'; // Light blue
+      default: return '#03a9f4';
     }
   };
 
@@ -163,7 +163,7 @@ export default function SimpleTable() {
           startIcon={<AddIcon />}
           sx={{ 
             borderRadius: 2,
-            boxShadow: '0 4px 10px rgba(98, 0, 234, 0.3)',
+            boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
             fontWeight: 500,
             px: 2
           }}
@@ -173,20 +173,21 @@ export default function SimpleTable() {
       </Box>
       
       <TableContainer component={Paper} sx={{ 
-        borderRadius: 3, 
+        borderRadius: 2, 
         overflow: 'hidden',
-        backgroundColor: 'transparent',
+        backgroundColor: 'white',
+        boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
         '& .MuiTableCell-root': {
-          borderColor: 'rgba(255, 255, 255, 0.05)'
+          borderColor: 'rgba(0, 0, 0, 0.08)'
         }
       }}>
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow sx={{ 
-              backgroundColor: 'rgba(0, 0, 0, 0.2)',
+              backgroundColor: 'rgba(25, 118, 210, 0.04)',
               '& .MuiTableCell-root': {
                 fontWeight: 600,
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'rgba(0, 0, 0, 0.7)',
                 textTransform: 'uppercase',
                 fontSize: '0.75rem',
                 letterSpacing: '0.5px'
@@ -205,7 +206,7 @@ export default function SimpleTable() {
               <TableRow 
                 key={threat.id}
                 sx={{ 
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.02)' },
                   transition: 'background-color 0.2s ease'
                 }}
               >
@@ -214,7 +215,7 @@ export default function SimpleTable() {
                   scope="row"
                   sx={{ 
                     fontWeight: threat.severity === 'Critical' ? 700 : 500,
-                    color: threat.severity === 'Critical' ? '#FF1744' : 'inherit'
+                    color: threat.severity === 'Critical' ? '#d32f2f' : 'inherit'
                   }}
                 >
                   {threat.name}
@@ -226,7 +227,7 @@ export default function SimpleTable() {
                     label={threat.severity}
                     size="small"
                     sx={{
-                      backgroundColor: `${getSeverityColor(threat.severity)}20`,
+                      backgroundColor: `${getSeverityColor(threat.severity)}15`,
                       color: getSeverityColor(threat.severity),
                       fontWeight: 500,
                       fontSize: '0.75rem',
@@ -245,8 +246,8 @@ export default function SimpleTable() {
                         onClick={() => removeThreat(threat.id)}
                         size="small"
                         sx={{ 
-                          backgroundColor: 'rgba(244, 67, 54, 0.1)',
-                          '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.2)' }
+                          backgroundColor: 'rgba(244, 67, 54, 0.08)',
+                          '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.15)' }
                         }}
                       >
                         <DeleteIcon fontSize="small" />

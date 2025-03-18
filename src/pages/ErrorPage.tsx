@@ -4,17 +4,21 @@ import React from 'react';
 import { useRouteError, useNavigate } from 'react-router-dom'; //  Link,
 //import { styled } from '@mui/material/styles';
 
+interface ErrorResponse {
+  statusText?: string;
+  data?: string;
+}
+
 const LandingPage: React.FC = () => {
-  const error = useRouteError();
+  const error = useRouteError() as ErrorResponse;
   console.log(error);
 
   const navigate = useNavigate();
   return (
     <>
       <div>
-        <h1>{error.statusText}</h1> {/* This error is def caused by type strictness but idk exactly what it is, look into later */}
-        <h3>{error.data}</h3>
-
+        <h1>{error.statusText || 'An error occurred'}</h1>
+        <h3>{error.data || 'Please try again later'}</h3>
 
         <button onClick={() => navigate('/')}>GO HOME AND GOON</button>      
       </div>

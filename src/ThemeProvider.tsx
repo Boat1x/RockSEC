@@ -2,46 +2,46 @@ import React from 'react';
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
-// Create a custom dark theme
-const darkTheme = createTheme({
+// Create a light theme with blue accents for Rocky Security Solutions
+const rockyTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     primary: {
-      main: '#6200ea', // Vibrant purple
-      light: '#bb86fc',
-      dark: '#3700b3',
+      main: '#1976d2', // Medium blue
+      light: '#4791db',
+      dark: '#115293',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#03dac6', // Teal/cyan
-      light: '#66fff8',
-      dark: '#00a896',
+      main: '#03a9f4', // Light blue
+      light: '#67daff',
+      dark: '#007ac1',
       contrastText: '#000000',
     },
     error: {
-      main: '#cf6679', // Pink-ish red
-      light: '#ff95a2',
-      dark: '#9b374d',
+      main: '#f44336', // Red
+      light: '#e57373',
+      dark: '#d32f2f',
     },
     warning: {
-      main: '#ffd600', // Vibrant amber
+      main: '#ff9800', // Orange
     },
     info: {
-      main: '#0288d1', // Blue
+      main: '#2196f3', // Blue
     },
     success: {
-      main: '#00c853', // Green
+      main: '#4caf50', // Green
     },
     background: {
-      default: '#121212', // Very dark gray, almost black
-      paper: '#1e1e1e', // Dark gray for cards
+      default: '#f5f7fa', // Light gray background
+      paper: '#ffffff', // White for cards and components
     },
     text: {
-      primary: 'rgba(255, 255, 255, 0.87)',
-      secondary: 'rgba(255, 255, 255, 0.6)',
-      disabled: 'rgba(255, 255, 255, 0.38)',
+      primary: 'rgba(0, 0, 0, 0.87)',
+      secondary: 'rgba(0, 0, 0, 0.6)',
+      disabled: 'rgba(0, 0, 0, 0.38)',
     },
-    divider: 'rgba(255, 255, 255, 0.12)',
+    divider: 'rgba(0, 0, 0, 0.12)',
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
@@ -79,7 +79,7 @@ const darkTheme = createTheme({
     },
   },
   shape: {
-    borderRadius: 12,
+    borderRadius: 8,
   },
   components: {
     MuiButton: {
@@ -92,15 +92,15 @@ const darkTheme = createTheme({
           padding: '8px 16px',
           transition: 'all 0.2s ease-in-out',
           '&:hover': {
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
             transform: 'translateY(-2px)',
           },
         },
         containedPrimary: {
-          background: 'linear-gradient(45deg, #6200ea 30%, #7c4dff 90%)',
+          background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
         },
         containedSecondary: {
-          background: 'linear-gradient(45deg, #03dac6 30%, #00f2c3 90%)',
+          background: 'linear-gradient(45deg, #03a9f4 30%, #4fc3f7 90%)',
         },
       },
     },
@@ -108,17 +108,17 @@ const darkTheme = createTheme({
       styleOverrides: {
         root: {
           backdropFilter: 'blur(10px)',
-          backgroundColor: 'rgba(30, 30, 30, 0.8)',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          boxShadow: '0 1px 8px rgba(0, 0, 0, 0.1)',
         },
       },
     },
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#121212',
-          borderRight: '1px solid rgba(255, 255, 255, 0.05)',
-          boxShadow: '4px 0 10px rgba(0, 0, 0, 0.2)',
+          backgroundColor: '#ffffff',
+          borderRight: '1px solid rgba(0, 0, 0, 0.08)',
+          boxShadow: '4px 0 10px rgba(0, 0, 0, 0.05)',
         },
       },
     },
@@ -126,26 +126,27 @@ const darkTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backgroundColor: '#1e1e1e',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-          borderRadius: 12,
+          backgroundColor: '#ffffff',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+          borderRadius: 8,
         },
         elevation1: {
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          boxShadow: '0 1px 8px rgba(0, 0, 0, 0.08)',
         },
         elevation2: {
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
         },
       },
     },
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderColor: 'rgba(255, 255, 255, 0.05)',
+          borderColor: 'rgba(0, 0, 0, 0.08)',
         },
         head: {
           fontWeight: 600,
-          color: 'rgba(255, 255, 255, 0.7)',
+          color: 'rgba(0, 0, 0, 0.7)',
+          backgroundColor: 'rgba(25, 118, 210, 0.04)',
         },
       },
     },
@@ -154,7 +155,7 @@ const darkTheme = createTheme({
         root: {
           borderRadius: 8,
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backgroundColor: 'rgba(25, 118, 210, 0.08)',
           },
         },
       },
@@ -169,8 +170,9 @@ const darkTheme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          borderRadius: 8,
+          boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+          border: '1px solid rgba(0, 0, 0, 0.04)',
         },
       },
     },
@@ -188,6 +190,16 @@ const darkTheme = createTheme({
         },
       },
     },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          '&:hover': {
+            backgroundColor: 'rgba(25, 118, 210, 0.08)',
+          },
+        },
+      },
+    },
   },
 });
 
@@ -197,7 +209,7 @@ interface ThemeProviderProps {
 
 const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   return (
-    <MuiThemeProvider theme={darkTheme}>
+    <MuiThemeProvider theme={rockyTheme}>
       <CssBaseline />
       {children}
     </MuiThemeProvider>

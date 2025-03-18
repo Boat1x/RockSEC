@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
   AppBar, 
   Toolbar, 
@@ -14,12 +14,13 @@ import {
   Button,
   useTheme
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../App';
 
 // Icons
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import ShieldIcon from '@mui/icons-material/Shield';
+import SecurityIcon from '@mui/icons-material/Security';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -34,6 +35,8 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState<null | HTMLElement>(null);
   
@@ -48,6 +51,12 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
   const handleMenuClose = () => {
     setAnchorEl(null);
     setNotificationsAnchorEl(null);
+  };
+  
+  const handleLogout = () => {
+    handleMenuClose();
+    logout();
+    navigate('/login');
   };
 
   // Notifications data
@@ -71,9 +80,10 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           marginLeft: open ? 260 : 0,
           width: open ? `calc(100% - 260px)` : '100%',
           backdropFilter: 'blur(10px)',
-          backgroundColor: 'rgba(30, 30, 30, 0.8)',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          color: theme.palette.text.primary,
         }}
+        elevation={2}
       >
         <Toolbar sx={{ pr: '24px' }}>
           <IconButton
@@ -90,9 +100,9 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           </IconButton>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <ShieldIcon sx={{ color: '#6200ea', fontSize: 28, mr: 1.5 }} />
+            <SecurityIcon sx={{ color: theme.palette.primary.main, fontSize: 28, mr: 1.5 }} />
             <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
-              CYBER<span style={{ color: '#03dac6' }}>SHIELD</span>
+              ROCKY <span style={{ color: theme.palette.secondary.main }}>SECURITY</span>
             </Typography>
             
             {/* Manhattanville University branding */}
@@ -102,14 +112,14 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
                 ml: 2, 
                 px: 1.5, 
                 py: 0.5, 
-                backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                backgroundColor: 'rgba(25, 118, 210, 0.08)', 
                 borderRadius: 1,
                 display: { xs: 'none', md: 'flex' },
                 alignItems: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+                border: '1px solid rgba(25, 118, 210, 0.2)'
               }}
             >
-              <SchoolIcon sx={{ fontSize: 16, mr: 0.5 }} />
+              <SchoolIcon sx={{ fontSize: 16, mr: 0.5, color: theme.palette.primary.main }} />
               <Typography variant="caption" sx={{ fontWeight: 500 }}>
                 Manhattanville University
               </Typography>
@@ -126,7 +136,6 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
               sx={{ 
                 borderRadius: 2, 
                 textTransform: 'none',
-                background: 'linear-gradient(45deg, #6200ea 30%, #7c4dff 90%)',
               }}
             >
               Client Portal
@@ -139,7 +148,6 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
               sx={{ 
                 borderRadius: 2, 
                 textTransform: 'none',
-                borderColor: 'rgba(3, 218, 198, 0.5)',
               }}
             >
               Learn Security
@@ -159,7 +167,7 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
               color="inherit"
               sx={{ ml: 1 }}
             >
-              <Avatar sx={{ bgcolor: '#6200ea', width: 36, height: 36 }}>JS</Avatar>
+              <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 36, height: 36 }}>JS</Avatar>
             </IconButton>
           </Box>
         </Toolbar>
@@ -176,9 +184,9 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           sx: {
             mt: 1.5,
             backgroundImage: 'none',
-            backgroundColor: '#1e1e1e',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            backgroundColor: '#ffffff',
+            border: '1px solid rgba(0, 0, 0, 0.08)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
             borderRadius: 2,
             minWidth: 200,
           },
@@ -191,7 +199,7 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           <Typography variant="body2" color="textSecondary">Student Consultant</Typography>
         </Box>
         
-        <Divider sx={{ my: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+        <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
         
         <MenuItem sx={{ py: 1.5 }}>
           <ListItemIcon>
@@ -214,13 +222,13 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           <Typography variant="body2">Settings</Typography>
         </MenuItem>
         
-        <Divider sx={{ my: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+        <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
         
         <MenuItem sx={{ py: 1.5 }}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" color="error" />
           </ListItemIcon>
-          <Typography variant="body2" color="error">Logout</Typography>
+          <Typography variant="body2" color="error" onClick={handleLogout}>Logout</Typography>
         </MenuItem>
       </Menu>
       
@@ -235,9 +243,9 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           sx: {
             mt: 1.5,
             backgroundImage: 'none',
-            backgroundColor: '#1e1e1e',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            backgroundColor: '#ffffff',
+            border: '1px solid rgba(0, 0, 0, 0.08)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
             borderRadius: 2,
             minWidth: 300,
             maxWidth: 360,
@@ -253,7 +261,7 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           </Typography>
         </Box>
         
-        <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+        <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)' }} />
         
         {notifications.map((notification) => (
           <MenuItem key={notification.id} sx={{ py: 1.5, px: 2 }}>
@@ -293,7 +301,7 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           </MenuItem>
         ))}
         
-        <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+        <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)' }} />
         
         <Box sx={{ p: 1.5, textAlign: 'center' }}>
           <Typography 

@@ -11,9 +11,10 @@ import {
   Area
 } from 'recharts';
  
-// Removed unused theme import
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material';
+import Paper from '@mui/material/Paper';
 
 // Type for chart data
 interface ChartData {
@@ -36,7 +37,11 @@ const data: ChartData[] = [
 
 interface TooltipProps {
   active?: boolean;
-  payload?: any[];
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
   label?: string;
 }
 
@@ -44,19 +49,18 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <Box
+      <Paper 
+        elevation={3}
         sx={{
-          backgroundColor: 'rgba(30, 30, 30, 0.95)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: 2,
           p: 1.5,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+          borderRadius: 1,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
         }}
       >
         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
           {label}
         </Typography>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index: number) => (
           <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
             <Box
               component="span"
@@ -73,7 +77,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
             </Typography>
           </Box>
         ))}
-      </Box>
+      </Paper>
     );
   }
 
@@ -81,38 +85,40 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 };
 
 const SimpleLineChart: React.FC = () => {
-  // Removed unused theme variable
+  const theme = useTheme();
   
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 3 }}>
-        <Box 
+        <Paper 
+          elevation={1}
           sx={{
             flex: '1 1 280px',
             p: 2,
-            backgroundColor: 'rgba(98, 0, 234, 0.05)',
+            backgroundColor: 'rgba(25, 118, 210, 0.04)',
             borderRadius: 2,
-            border: '1px solid rgba(98, 0, 234, 0.2)'
+            border: '1px solid rgba(25, 118, 210, 0.1)'
           }}
         >
           <Typography variant="subtitle2" color="textSecondary" gutterBottom>
             Total Scans
           </Typography>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
             1,630
           </Typography>
           <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
             +12.5% from last week
           </Typography>
-        </Box>
+        </Paper>
         
-        <Box 
+        <Paper 
+          elevation={1}
           sx={{
             flex: '1 1 280px',
             p: 2,
-            backgroundColor: 'rgba(244, 67, 54, 0.05)',
+            backgroundColor: 'rgba(244, 67, 54, 0.04)',
             borderRadius: 2,
-            border: '1px solid rgba(244, 67, 54, 0.2)'
+            border: '1px solid rgba(244, 67, 54, 0.1)'
           }}
         >
           <Typography variant="subtitle2" color="textSecondary" gutterBottom>
@@ -124,27 +130,28 @@ const SimpleLineChart: React.FC = () => {
           <Typography variant="body2" sx={{ fontWeight: 600, color: '#f44336' }}>
             +23.8% from last week
           </Typography>
-        </Box>
+        </Paper>
         
-        <Box 
+        <Paper 
+          elevation={1}
           sx={{
             flex: '1 1 280px',
             p: 2,
-            backgroundColor: 'rgba(3, 218, 198, 0.05)',
+            backgroundColor: 'rgba(3, 169, 244, 0.04)',
             borderRadius: 2,
-            border: '1px solid rgba(3, 218, 198, 0.2)'
+            border: '1px solid rgba(3, 169, 244, 0.1)'
           }}
         >
           <Typography variant="subtitle2" color="textSecondary" gutterBottom>
             Defense Rate
           </Typography>
-          <Typography variant="h4" sx={{ fontWeight: 700, color: '#03dac6' }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.secondary.main }}>
             93.4%
           </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 600, color: '#03dac6' }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.secondary.main }}>
             +2.1% from last week
           </Typography>
-        </Box>
+        </Paper>
       </Box>
       
       <ResponsiveContainer width="100%" height={350}>
@@ -159,28 +166,28 @@ const SimpleLineChart: React.FC = () => {
         >
           <defs>
             <linearGradient id="colorThreats" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#f44336" stopOpacity={0.4}/>
+              <stop offset="5%" stopColor="#f44336" stopOpacity={0.3}/>
               <stop offset="95%" stopColor="#f44336" stopOpacity={0}/>
             </linearGradient>
             <linearGradient id="colorBlocked" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#03dac6" stopOpacity={0.4}/>
-              <stop offset="95%" stopColor="#03dac6" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#03a9f4" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#03a9f4" stopOpacity={0}/>
             </linearGradient>
             <linearGradient id="colorScans" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#bb86fc" stopOpacity={0.4}/>
-              <stop offset="95%" stopColor="#bb86fc" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#7e57c2" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#7e57c2" stopOpacity={0}/>
             </linearGradient>
           </defs>
           
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.1)" />
           <XAxis 
             dataKey="name" 
-            stroke="rgba(255, 255, 255, 0.5)"
-            tick={{ fill: 'rgba(255, 255, 255, 0.7)' }}
+            stroke="rgba(0, 0, 0, 0.5)"
+            tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
           />
           <YAxis 
-            stroke="rgba(255, 255, 255, 0.5)"
-            tick={{ fill: 'rgba(255, 255, 255, 0.7)' }}
+            stroke="rgba(0, 0, 0, 0.5)"
+            tick={{ fill: 'rgba(0, 0, 0, 0.6)' }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Legend 
@@ -194,7 +201,7 @@ const SimpleLineChart: React.FC = () => {
             type="monotone" 
             dataKey="Scans Conducted" 
             fill="url(#colorScans)" 
-            stroke="#bb86fc"
+            stroke="#7e57c2"
             strokeWidth={2}
             dot={{ r: 4, strokeWidth: 2 }}
             activeDot={{ r: 6, strokeWidth: 0 }}
@@ -211,7 +218,7 @@ const SimpleLineChart: React.FC = () => {
           <Line 
             type="monotone" 
             dataKey="Blocked Attacks" 
-            stroke="#03dac6" 
+            stroke="#03a9f4" 
             strokeWidth={3}
             dot={{ r: 4, strokeWidth: 2 }}
             activeDot={{ r: 6, strokeWidth: 0 }}

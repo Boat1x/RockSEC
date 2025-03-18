@@ -2,36 +2,36 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Drawer,
-  IconButton,
-  Divider,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
-  Box,
   Typography,
-  Avatar,
-  useTheme,
+  IconButton,
+  Divider,
+  Box,
   ListSubheader,
   Collapse,
-  Badge
+  Badge,
+  Avatar,
+  useTheme
 } from '@mui/material';
 
 // Icons
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HistoryIcon from '@mui/icons-material/History';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import BusinessIcon from '@mui/icons-material/Business';
 import SchoolIcon from '@mui/icons-material/School';
-import PersonIcon from '@mui/icons-material/Person';
-import HelpIcon from '@mui/icons-material/Help';
-import SettingsIcon from '@mui/icons-material/Settings';
-import WarningIcon from '@mui/icons-material/Warning';
-import GroupIcon from '@mui/icons-material/Group';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import PeopleIcon from '@mui/icons-material/People';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ShieldIcon from '@mui/icons-material/Shield';
+import LogoutIcon from '@mui/icons-material/Logout';
+import WarningIcon from '@mui/icons-material/Warning';
+import GroupIcon from '@mui/icons-material/Group';
+import SecurityIcon from '@mui/icons-material/Security';
 
 interface SidebarProps {
   open: boolean;
@@ -47,9 +47,9 @@ interface NavItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
-  const theme = useTheme();
-  const location = useLocation();
   const [clientsOpen, setClientsOpen] = useState<boolean>(false);
+  const location = useLocation();
+  const theme = useTheme();
   
   const handleClientsClick = (): void => {
     setClientsOpen(!clientsOpen);
@@ -78,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
     { 
       path: '/consultant', 
       name: 'Consultant Portal', 
-      icon: <PersonIcon />,
+      icon: <PeopleIcon />,
       isActive: location.pathname === '/consultant',
       badge: 5
     },
@@ -140,9 +140,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
-          backgroundColor: '#121212',
-          borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '4px 0 15px rgba(0, 0, 0, 0.2)',
+          backgroundColor: '#ffffff',
+          borderRight: '1px solid rgba(0, 0, 0, 0.08)',
+          boxShadow: '4px 0 15px rgba(0, 0, 0, 0.05)',
         },
       }}
     >
@@ -162,9 +162,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
           display: 'flex', 
           alignItems: 'center' 
         }}>
-          <ShieldIcon sx={{ color: theme.palette.primary.main, fontSize: 24, mr: 1 }} />
+          <SecurityIcon sx={{ color: theme.palette.primary.main, fontSize: 24, mr: 1 }} />
           <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600 }}>
-            CYBER<span style={{ color: theme.palette.secondary.main }}>SHIELD</span>
+            ROCKY <span style={{ color: theme.palette.secondary.main }}>SECURITY</span>
           </Typography>
         </Box>
         <IconButton onClick={handleDrawerClose}>
@@ -172,7 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
         </IconButton>
       </Box>
       
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+      <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)' }} />
       
       {/* User profile summary */}
       <Box sx={{ p: 2, textAlign: 'center' }}>
@@ -196,15 +196,16 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
           display: 'flex', 
           justifyContent: 'center', 
           mt: 1,
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(0, 0, 0, 0.08)',
           borderRadius: 1,
-          py: 0.5
+          py: 0.5,
+          backgroundColor: 'rgba(25, 118, 210, 0.04)'
         }}>
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center',
             px: 1,
-            borderRight: '1px solid rgba(255, 255, 255, 0.1)'
+            borderRight: '1px solid rgba(0, 0, 0, 0.08)'
           }}>
             <Typography variant="body2" sx={{ fontWeight: 600, mr: 0.5 }}>
               5
@@ -224,7 +225,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
         </Box>
       </Box>
       
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', mt: 2 }} />
+      <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)', mt: 2 }} />
       
       {/* Main navigation */}
       <List>
@@ -242,12 +243,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
               color: 'inherit',
               textDecoration: 'none',
               ...(item.isActive && {
-                backgroundColor: 'rgba(98, 0, 234, 0.1)', 
+                backgroundColor: 'rgba(25, 118, 210, 0.08)', 
                 borderLeft: `4px solid ${theme.palette.primary.main}`,
                 pl: 1.5,
               }),
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: 'rgba(25, 118, 210, 0.06)',
               },
             }}
           >
@@ -281,7 +282,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
         ))}
       </List>
       
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', my: 1 }} />
+      <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)', my: 1 }} />
       
       {/* Client List with Collapsible */}
       <List
@@ -291,7 +292,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
             onClick={handleClientsClick}
             sx={{
               backgroundColor: 'transparent',
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(0, 0, 0, 0.6)',
               fontSize: '0.75rem',
               letterSpacing: '1px',
               fontWeight: 700,
@@ -301,7 +302,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
               justifyContent: 'space-between',
               textTransform: 'uppercase',
               '&:hover': {
-                color: 'rgba(255, 255, 255, 0.9)',
+                color: 'rgba(0, 0, 0, 0.8)',
               },
             }}
           >
@@ -310,68 +311,45 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
           </ListSubheader>
         }
       >
-        <Collapse in={clientsOpen} timeout="auto" unmountOnExit>
-          {clientsNavItems.map((item) => (
-            <ListItem
-              key={item.path}
-              component={Link}
-              to={item.path}
-              sx={{
-                py: 0.75,
-                px: 2,
-                pl: 3,
-                mx: 1,
-                my: 0.25,
-                borderRadius: 1,
-                color: 'inherit',
-                textDecoration: 'none',
-                ...(item.isActive && {
-                  backgroundColor: 'rgba(3, 218, 198, 0.1)', 
-                  borderLeft: `2px solid ${theme.palette.secondary.main}`,
-                  pl: 2.9,
-                }),
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                },
-              }}
-            >
-              <ListItemIcon 
+        <Collapse in={clientsOpen}>
+          <List component="div" disablePadding sx={{ pl: 4 }}>
+            {clientsNavItems.map((item) => (
+              <ListItemButton 
+                key={item.path}
+                component={Link} 
+                to={item.path}
                 sx={{ 
-                  minWidth: '36px',
-                  color: item.isActive ? theme.palette.secondary.main : 'inherit',
-                  fontSize: '0.9rem'
+                  borderRadius: '8px', 
+                  mb: 1,
+                  ...(item.isActive && {
+                    backgroundColor: 'rgba(25, 118, 210, 0.08)', 
+                    borderLeft: `4px solid ${theme.palette.primary.main}`,
+                  }),
+                  '&:hover': {
+                    backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                  }
                 }}
               >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText 
-                primary={
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      fontWeight: item.isActive ? 600 : 400,
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                } 
-              />
-            </ListItem>
-          ))}
+                <ListItemIcon>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItemButton>
+            ))}
+          </List>
         </Collapse>
       </List>
       
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', my: 1 }} />
+      {/* Reports Section */}
+      <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)', my: 1 }} />
       
-      {/* Reports & Analytics */}
       <List
         subheader={
           <ListSubheader
             component="div"
             sx={{
               backgroundColor: 'transparent',
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(0, 0, 0, 0.6)',
               fontSize: '0.75rem',
               letterSpacing: '1px',
               fontWeight: 700,
@@ -396,12 +374,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
               color: 'inherit',
               textDecoration: 'none',
               ...(item.isActive && {
-                backgroundColor: 'rgba(98, 0, 234, 0.1)', 
+                backgroundColor: 'rgba(25, 118, 210, 0.08)', 
                 borderLeft: `4px solid ${theme.palette.primary.main}`,
                 pl: 1.5,
               }),
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: 'rgba(25, 118, 210, 0.06)',
               },
             }}
           >
@@ -429,74 +407,37 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
         ))}
       </List>
       
-      <Box sx={{ flexGrow: 1 }} />
-      
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-      
-      {/* Help & Settings */}
-      <List>
+      {/* Logout Button */}
+      <Box sx={{ mt: 'auto', p: 2 }}>
         <ListItem
-          component={Link}
-          to="/help"
+          component="button"
           sx={{
             py: 1,
             px: 2,
-            mx: 1,
-            my: 0.5,
             borderRadius: 1,
+            border: '1px solid rgba(0, 0, 0, 0.08)',
             color: 'inherit',
             textDecoration: 'none',
+            cursor: 'pointer',
+            backgroundColor: 'transparent',
+            display: 'flex',
+            width: '100%',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backgroundColor: 'rgba(25, 118, 210, 0.06)',
             },
           }}
         >
           <ListItemIcon sx={{ minWidth: '40px' }}>
-            <HelpIcon />
+            <LogoutIcon />
           </ListItemIcon>
-          <ListItemText primary="Help & Support" />
+          <ListItemText 
+            primary={
+              <Typography variant="body2">
+                Logout
+              </Typography>
+            } 
+          />
         </ListItem>
-        
-        <ListItem
-          component={Link}
-          to="/settings"
-          sx={{
-            py: 1,
-            px: 2,
-            mx: 1,
-            my: 0.5,
-            borderRadius: 1,
-            color: 'inherit',
-            textDecoration: 'none',
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            },
-          }}
-        >
-          <ListItemIcon sx={{ minWidth: '40px' }}>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
-        </ListItem>
-      </List>
-      
-      {/* Manhattanville University Branding */}
-      <Box sx={{ p: 2, textAlign: 'center' }}>
-        <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', mb: 2 }} />
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          opacity: 0.7
-        }}>
-          <SchoolIcon sx={{ fontSize: 16, mr: 0.5, color: theme.palette.primary.main }} />
-          <Typography variant="caption" sx={{ fontWeight: 500 }}>
-            Manhattanville University
-          </Typography>
-        </Box>
-        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 0.5, fontSize: '0.7rem' }}>
-          Cybersecurity Student Consultants
-        </Typography>
       </Box>
     </Drawer>
   );
