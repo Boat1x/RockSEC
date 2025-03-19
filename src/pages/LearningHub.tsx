@@ -6,7 +6,6 @@ import {
   Grid, 
   Card, 
   CardContent, 
-  CardMedia, 
   Button, 
   Tabs, 
   Tab, 
@@ -14,7 +13,6 @@ import {
   ListItem, 
   ListItemIcon, 
   ListItemText,
-  Divider,
   TextField,
   InputAdornment,
   Chip,
@@ -75,13 +73,158 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+// Categories for filtering
+const categories = [
+  { name: 'All Resources', icon: <SecurityIcon />, color: '#1976d2' },
+  { name: 'Phishing Defense', icon: <PhishingIcon />, color: '#f44336' },
+  { name: 'Network Security', icon: <SpeedIcon />, color: '#ff9800' },
+  { name: 'Cloud Security', icon: <CloudIcon />, color: '#03a9f4' },
+  { name: 'Client Education', icon: <PeopleIcon />, color: '#4caf50' },
+  { name: 'Assessment Tools', icon: <CodeIcon />, color: '#7e57c2' },
+];
+
+const resources: Resource[] = [
+  {
+    id: 1,
+    title: 'Small Business Security Essentials',
+    type: 'guide',
+    category: 'Client Education',
+    author: 'John Smith',
+    date: 'March 1, 2025',
+    rating: 4.8,
+    readTime: '15 min',
+    description: 'A comprehensive guide to essential security practices for small business owners.',
+    image: 'https://example.com/image1.jpg',
+    popular: true
+  },
+  {
+    id: 2,
+    title: 'How to Conduct a Phishing Simulation',
+    type: 'video',
+    category: 'Phishing Defense',
+    author: 'Emily Chen',
+    date: 'February 14, 2025',
+    rating: 4.5,
+    videoLength: '22:15',
+    description: 'Step-by-step tutorial on setting up effective phishing simulations for clients.',
+    image: 'https://example.com/image2.jpg',
+    popular: true
+  },
+  {
+    id: 3,
+    title: 'Network Vulnerability Assessment Template',
+    type: 'template',
+    category: 'Assessment Tools',
+    author: 'Michael Johnson',
+    date: 'February 28, 2025',
+    rating: 4.7,
+    description: 'Ready-to-use template for documenting network vulnerabilities and recommendations.',
+    popular: false
+  },
+  {
+    id: 4,
+    title: 'Cloud Security Best Practices',
+    type: 'article',
+    category: 'Cloud Security',
+    author: 'Sarah Williams',
+    date: 'February 20, 2025',
+    rating: 4.6,
+    readTime: '10 min',
+    description: 'Learn how to secure cloud environments for small businesses.',
+    popular: true
+  },
+  {
+    id: 5,
+    title: 'Staff Security Awareness Training',
+    type: 'training',
+    category: 'Client Education',
+    author: 'David Rodriguez',
+    date: 'March 2, 2025',
+    rating: 4.9,
+    videoLength: '45:00',
+    description: 'Complete training program to educate client staff on security best practices.',
+    popular: false
+  },
+  {
+    id: 6,
+    title: 'Secure Password Policies for SMBs',
+    type: 'article',
+    category: 'Client Education',
+    author: 'Alex Turner',
+    date: 'February 25, 2025',
+    rating: 4.3,
+    readTime: '8 min',
+    description: 'How to establish effective password policies for small and medium businesses.',
+    popular: false
+  },
+  {
+    id: 7,
+    title: 'Discovering Network Vulnerabilities',
+    type: 'video',
+    category: 'Network Security',
+    author: 'Lisa Martinez',
+    date: 'February 18, 2025',
+    rating: 4.7,
+    videoLength: '18:45',
+    description: 'Demonstration of tools and techniques for discovering network vulnerabilities.',
+    popular: true
+  },
+  {
+    id: 8,
+    title: 'Client Security Assessment Report Template',
+    type: 'template',
+    category: 'Assessment Tools',
+    author: 'Kevin Zhang',
+    date: 'March 3, 2025',
+    rating: 4.8,
+    description: 'Professional template for presenting security assessment findings to clients.',
+    popular: false
+  },
+];
+
+// Function to get icon for resource type
+const getResourceIcon = (type: string) => {
+  switch (type) {
+    case 'article':
+      return <ArticleIcon />;
+    case 'video':
+      return <VideoLibraryIcon />;
+    case 'template':
+      return <InsertDriveFileIcon />;
+    case 'guide':
+      return <SchoolIcon />;
+    case 'training':
+      return <PeopleIcon />;
+    default:
+      return <ArticleIcon />;
+  }
+};
+
+// Function to get color for resource type
+const getResourceColor = (type: string) => {
+  switch (type) {
+    case 'article':
+      return '#1976d2'; // Blue
+    case 'video':
+      return '#f44336'; // Red
+    case 'template':
+      return '#4caf50'; // Green
+    case 'guide':
+      return '#ff9800'; // Orange
+    case 'training':
+      return '#7e57c2'; // Purple
+    default:
+      return '#1976d2'; // Blue
+  }
+};
+
 const LearningHub: React.FC = () => {
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Resources');
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -512,148 +655,3 @@ const LearningHub: React.FC = () => {
 };
 
 export default LearningHub;
-
-// Categories for filtering
-const categories = [
-  { name: 'All Resources', icon: <SecurityIcon />, color: '#1976d2' },
-  { name: 'Phishing Defense', icon: <PhishingIcon />, color: '#f44336' },
-  { name: 'Network Security', icon: <SpeedIcon />, color: '#ff9800' },
-  { name: 'Cloud Security', icon: <CloudIcon />, color: '#03a9f4' },
-  { name: 'Client Education', icon: <PeopleIcon />, color: '#4caf50' },
-  { name: 'Assessment Tools', icon: <CodeIcon />, color: '#7e57c2' },
-];
-
-const resources: Resource[] = [
-  {
-    id: 1,
-    title: 'Small Business Security Essentials',
-    type: 'guide',
-    category: 'Client Education',
-    author: 'John Smith',
-    date: 'March 1, 2025',
-    rating: 4.8,
-    readTime: '15 min',
-    description: 'A comprehensive guide to essential security practices for small business owners.',
-    image: 'https://example.com/image1.jpg',
-    popular: true
-  },
-  {
-    id: 2,
-    title: 'How to Conduct a Phishing Simulation',
-    type: 'video',
-    category: 'Phishing Defense',
-    author: 'Emily Chen',
-    date: 'February 14, 2025',
-    rating: 4.5,
-    videoLength: '22:15',
-    description: 'Step-by-step tutorial on setting up effective phishing simulations for clients.',
-    image: 'https://example.com/image2.jpg',
-    popular: true
-  },
-  {
-    id: 3,
-    title: 'Network Vulnerability Assessment Template',
-    type: 'template',
-    category: 'Assessment Tools',
-    author: 'Michael Johnson',
-    date: 'February 28, 2025',
-    rating: 4.7,
-    description: 'Ready-to-use template for documenting network vulnerabilities and recommendations.',
-    popular: false
-  },
-  {
-    id: 4,
-    title: 'Cloud Security Best Practices',
-    type: 'article',
-    category: 'Cloud Security',
-    author: 'Sarah Williams',
-    date: 'February 20, 2025',
-    rating: 4.6,
-    readTime: '10 min',
-    description: 'Learn how to secure cloud environments for small businesses.',
-    popular: true
-  },
-  {
-    id: 5,
-    title: 'Staff Security Awareness Training',
-    type: 'training',
-    category: 'Client Education',
-    author: 'David Rodriguez',
-    date: 'March 2, 2025',
-    rating: 4.9,
-    videoLength: '45:00',
-    description: 'Complete training program to educate client staff on security best practices.',
-    popular: false
-  },
-  {
-    id: 6,
-    title: 'Secure Password Policies for SMBs',
-    type: 'article',
-    category: 'Client Education',
-    author: 'Alex Turner',
-    date: 'February 25, 2025',
-    rating: 4.3,
-    readTime: '8 min',
-    description: 'How to establish effective password policies for small and medium businesses.',
-    popular: false
-  },
-  {
-    id: 7,
-    title: 'Discovering Network Vulnerabilities',
-    type: 'video',
-    category: 'Network Security',
-    author: 'Lisa Martinez',
-    date: 'February 18, 2025',
-    rating: 4.7,
-    videoLength: '18:45',
-    description: 'Demonstration of tools and techniques for discovering network vulnerabilities.',
-    popular: true
-  },
-  {
-    id: 8,
-    title: 'Client Security Assessment Report Template',
-    type: 'template',
-    category: 'Assessment Tools',
-    author: 'Kevin Zhang',
-    date: 'March 3, 2025',
-    rating: 4.8,
-    description: 'Professional template for presenting security assessment findings to clients.',
-    popular: false
-  },
-];
-
-// Function to get icon for resource type
-const getResourceIcon = (type: string) => {
-  switch (type) {
-    case 'article':
-      return <ArticleIcon />;
-    case 'video':
-      return <VideoLibraryIcon />;
-    case 'template':
-      return <InsertDriveFileIcon />;
-    case 'guide':
-      return <SchoolIcon />;
-    case 'training':
-      return <PeopleIcon />;
-    default:
-      return <ArticleIcon />;
-  }
-};
-
-// Function to get color for resource type
-const getResourceColor = (type: string) => {
-  switch (type) {
-    case 'article':
-      return '#1976d2'; // Blue
-    case 'video':
-      return '#f44336'; // Red
-    case 'template':
-      return '#4caf50'; // Green
-    case 'guide':
-      return '#ff9800'; // Orange
-    case 'training':
-      return '#7e57c2'; // Purple
-    default:
-      return '#1976d2'; // Blue
-  }
-};
