@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Paper,
   Typography,
   Stepper,
   Step,
@@ -22,10 +21,11 @@ import {
   Card,
   CardContent,
   Rating,
-  useTheme,
   Avatar,
   Chip,
   LinearProgress,
+  Paper,
+  useTheme,
   SelectChangeEvent
 } from '@mui/material';
 
@@ -38,23 +38,22 @@ import WarningIcon from '@mui/icons-material/Warning';
 import PendingIcon from '@mui/icons-material/Pending';
 import SchoolIcon from '@mui/icons-material/School';
 import ArticleIcon from '@mui/icons-material/Article';
+import ShieldIcon from '@mui/icons-material/Shield';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
-interface BusinessAssessmentProps {
-  // Add props if needed
-}
-
+// Define types 
 type ThreatConcern = string;
 type SecurityStaffOption = 'yes' | 'partial' | 'no';
 type BusinessType = string;
 type EmployeeCount = string;
 
-const BusinessAssessment: React.FC<BusinessAssessmentProps> = () => {
+const BusinessAssessment = () => {
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState<number>(0);
   const [businessType, setBusinessType] = useState<BusinessType>('');
   const [employeeCount, setEmployeeCount] = useState<EmployeeCount>('');
   const [selectedThreats, setSelectedThreats] = useState<ThreatConcern[]>([]);
-  const [securityMaturity, setSecurityMaturity] = useState<number | null>(2);
+  const [securityMaturity, setSecurityMaturity] = useState<number>(2);
   const [hasSecurityStaff, setHasSecurityStaff] = useState<SecurityStaffOption>('no');
   const [reportGenerated, setReportGenerated] = useState<boolean>(false);
 
@@ -92,11 +91,11 @@ const BusinessAssessment: React.FC<BusinessAssessmentProps> = () => {
     setSelectedThreats(newSelectedThreats);
   };
 
-  const handleBusinessTypeChange = (event: SelectChangeEvent<string>): void => {
+  const handleBusinessTypeChange = (event: SelectChangeEvent): void => {
     setBusinessType(event.target.value);
   };
 
-  const handleEmployeeCountChange = (event: SelectChangeEvent<string>): void => {
+  const handleEmployeeCountChange = (event: SelectChangeEvent): void => {
     setEmployeeCount(event.target.value);
   };
 
@@ -105,7 +104,7 @@ const BusinessAssessment: React.FC<BusinessAssessmentProps> = () => {
   };
 
   const handleGenerateReport = (): void => {
-    // Simulate report generation
+    // Simulate report generation with a delay
     setTimeout(() => {
       setReportGenerated(true);
     }, 1500);
@@ -149,7 +148,7 @@ const BusinessAssessment: React.FC<BusinessAssessmentProps> = () => {
     'Cloud service security'
   ];
 
-  // Calculate the security risk score (just an example calculation)
+  // Calculate the security risk score
   const calculateRiskScore = (): number => {
     let score = 0;
     
@@ -161,11 +160,7 @@ const BusinessAssessment: React.FC<BusinessAssessmentProps> = () => {
     else score += 5;
     
     // Security maturity factor (inverse relationship)
-    if (securityMaturity) {
-      score += (6 - securityMaturity);
-    } else {
-      score += 5;
-    }
+    score += (6 - securityMaturity);
     
     // Staff factor
     if (hasSecurityStaff === 'no') score += 3;
@@ -192,436 +187,554 @@ const BusinessAssessment: React.FC<BusinessAssessmentProps> = () => {
   const riskInfo = getRiskLabel(riskScore);
 
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        p: 3,
-        borderRadius: 3,
-        background: '#1e1e1e',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-        mb: 4,
-        maxWidth: 900,
-        mx: 'auto',
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <AssessmentIcon sx={{ fontSize: 28, mr: 1.5, color: theme.palette.primary.main }} />
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
-          Business Security Assessment Tool
-        </Typography>
-      </Box>
-
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="body1" color="textSecondary">
-          Created by Manhattanville University student consultants to help local businesses identify and address cybersecurity risks.
-        </Typography>
-      </Box>
-
-      <Stepper activeStep={activeStep} orientation="vertical">
-        <Step>
-          <StepLabel
-            StepIconProps={{
-              icon: <BusinessIcon />,
-            }}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              Business Information
-            </Typography>
-          </StepLabel>
-          <StepContent>
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                Let's start by understanding your business better. This helps us tailor our security recommendations to your specific needs.
+    <Box sx={{ maxWidth: 900, mx: 'auto', p: { xs: 2, md: 4 } }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: { xs: 2, md: 4 },
+          borderRadius: 3,
+          bgcolor: 'white',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
+      >
+        {/* Header with decorated background */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '120px',
+            background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+            opacity: 0.9,
+            zIndex: 0,
+          }}
+        />
+        
+        <Box sx={{ position: 'relative', zIndex: 1, pt: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+            <Avatar
+              sx={{
+                bgcolor: 'white',
+                color: theme.palette.primary.main,
+                width: 56,
+                height: 56,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              }}
+            >
+              <AssessmentIcon sx={{ fontSize: 32 }} />
+            </Avatar>
+            <Box sx={{ ml: 2 }}>
+              <Typography variant="h4" component="h1" sx={{ fontWeight: 700, color: 'white' }}>
+                Business Security Assessment
               </Typography>
-              
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel id="business-type-label">Business Type</InputLabel>
-                <Select
-                  labelId="business-type-label"
-                  value={businessType}
-                  label="Business Type"
-                  onChange={handleBusinessTypeChange}
-                >
-                  {businessTypes.map((type) => (
-                    <MenuItem key={type} value={type}>{type}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel id="employee-count-label">Number of Employees</InputLabel>
-                <Select
-                  labelId="employee-count-label"
-                  value={employeeCount}
-                  label="Number of Employees"
-                  onChange={handleEmployeeCountChange}
-                >
-                  {employeeCounts.map((count) => (
-                    <MenuItem key={count} value={count}>{count}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              
-              <FormControl component="fieldset" sx={{ mb: 2 }}>
-                <FormLabel component="legend">Do you have dedicated IT/security staff?</FormLabel>
-                <RadioGroup
-                  row
-                  value={hasSecurityStaff}
-                  onChange={handleSecurityStaffChange}
-                >
-                  <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="partial" control={<Radio />} label="Outsourced/Partial" />
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
+              <Typography variant="subtitle1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                Created by Manhattanville University student consultants
+              </Typography>
             </Box>
-            
-            <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                sx={{ 
-                  background: 'linear-gradient(45deg, #6200ea 30%, #7c4dff 90%)',
+          </Box>
+        </Box>
+        
+        <Box sx={{ position: 'relative', zIndex: 1, mt: 6 }}>
+          <Typography variant="body1" color="textSecondary" sx={{ mb: 4 }}>
+            Complete this assessment to identify security risks and receive tailored recommendations for your business. Our student consultants can help implement these recommendations under faculty supervision.
+          </Typography>
+
+          <Stepper activeStep={activeStep} orientation="vertical">
+            <Step>
+              <StepLabel
+                StepIconProps={{
+                  icon: <BusinessIcon />,
+                  sx: { 
+                    fontSize: 28,
+                    color: activeStep >= 0 ? theme.palette.primary.main : 'grey.500'
+                  }
                 }}
               >
-                Continue
-              </Button>
-            </Box>
-          </StepContent>
-        </Step>
-        
-        <Step>
-          <StepLabel
-            StepIconProps={{
-              icon: <SecurityIcon />,
-            }}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              Security Concerns
-            </Typography>
-          </StepLabel>
-          <StepContent>
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                What security concerns are you most worried about? Select all that apply.
-              </Typography>
-              
-              <FormControl component="fieldset" sx={{ mb: 2 }}>
-                <FormGroup>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
-                    {threatConcerns.map((threat) => (
-                      <FormControlLabel
-                        key={threat}
-                        control={
-                          <Checkbox 
-                            checked={selectedThreats.includes(threat)}
-                            onChange={handleThreatChange}
-                            value={threat}
-                          />
-                        }
-                        label={threat}
-                      />
-                    ))}
-                  </Box>
-                </FormGroup>
-              </FormControl>
-              
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" color="textSecondary" gutterBottom>
-                  How would you rate your organization's current security maturity?
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Business Information
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Typography variant="caption">Basic</Typography>
-                  <Rating
-                    value={securityMaturity}
-                    onChange={(_, newValue) => {
-                      setSecurityMaturity(newValue);
-                    }}
-                    max={5}
-                  />
-                  <Typography variant="caption">Advanced</Typography>
+              </StepLabel>
+              <StepContent>
+                <Box sx={{ mb: 3, p: 2, bgcolor: 'rgba(25, 118, 210, 0.04)', borderRadius: 2, border: '1px solid rgba(25, 118, 210, 0.1)' }}>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    Let's start by understanding your business better. This helps us tailor our security recommendations to your specific needs.
+                  </Typography>
+                  
+                  <FormControl fullWidth sx={{ mb: 3 }}>
+                    <InputLabel id="business-type-label">Business Type</InputLabel>
+                    <Select
+                      labelId="business-type-label"
+                      value={businessType}
+                      label="Business Type"
+                      onChange={handleBusinessTypeChange}
+                    >
+                      {businessTypes.map((type) => (
+                        <MenuItem key={type} value={type}>{type}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  
+                  <FormControl fullWidth sx={{ mb: 3 }}>
+                    <InputLabel id="employee-count-label">Number of Employees</InputLabel>
+                    <Select
+                      labelId="employee-count-label"
+                      value={employeeCount}
+                      label="Number of Employees"
+                      onChange={handleEmployeeCountChange}
+                    >
+                      {employeeCounts.map((count) => (
+                        <MenuItem key={count} value={count}>{count}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  
+                  <FormControl component="fieldset" sx={{ mb: 2 }}>
+                    <FormLabel component="legend" sx={{ mb: 1 }}>Do you have dedicated IT/security staff?</FormLabel>
+                    <RadioGroup
+                      row
+                      value={hasSecurityStaff}
+                      onChange={handleSecurityStaffChange}
+                    >
+                      <FormControlLabel value="yes" control={<Radio />} label="Yes" />
+                      <FormControlLabel value="partial" control={<Radio />} label="Outsourced/Partial" />
+                      <FormControlLabel value="no" control={<Radio />} label="No" />
+                    </RadioGroup>
+                  </FormControl>
                 </Box>
-              </Box>
-            </Box>
-            
-            <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-              <Button onClick={handleBack} sx={{ mr: 1 }}>
-                Back
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                sx={{ 
-                  background: 'linear-gradient(45deg, #6200ea 30%, #7c4dff 90%)',
-                }}
-              >
-                Continue
-              </Button>
-            </Box>
-          </StepContent>
-        </Step>
-        
-        <Step>
-          <StepLabel
-            StepIconProps={{
-              icon: <ArticleIcon />,
-            }}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              Assessment Results
-            </Typography>
-          </StepLabel>
-          <StepContent>
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-                Based on your inputs, we've prepared an initial security assessment for your business.
-              </Typography>
-              
-              {!reportGenerated ? (
-                <Box sx={{ mb: 3 }}>
+                
+                <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
                   <Button
                     variant="contained"
-                    onClick={handleGenerateReport}
+                    onClick={handleNext}
                     sx={{ 
-                      background: 'linear-gradient(45deg, #6200ea 30%, #7c4dff 90%)',
-                      mb: 2
+                      py: 1.2,
+                      px: 3,
+                      background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                      fontWeight: 600,
                     }}
+                    disabled={!businessType || !employeeCount}
                   >
-                    Generate Assessment
+                    Continue
                   </Button>
-                  <LinearProgress />
                 </Box>
-              ) : (
-                <>
-                  <Box sx={{ mb: 4 }}>
-                    <Card sx={{ 
-                      mb: 3, 
-                      backgroundColor: 'rgba(30, 30, 30, 0.5)',
-                      borderRadius: 2,
-                      border: '1px solid rgba(255, 255, 255, 0.1)'
-                    }}>
-                      <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 600, mr: 2 }}>
-                            Risk Score:
-                          </Typography>
-                          <Chip 
-                            label={`${riskScore}% - ${riskInfo.label}`}
-                            sx={{ 
-                              bgcolor: `${riskInfo.color}20`,
-                              color: riskInfo.color,
-                              fontWeight: 600,
-                              borderRadius: 1
-                            }}
-                          />
-                        </Box>
-                        
-                        <Box sx={{ mt: 2 }}>
-                          <LinearProgress 
-                            variant="determinate" 
-                            value={riskScore} 
-                            sx={{ 
-                              height: 10, 
-                              borderRadius: 5,
-                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                              '& .MuiLinearProgress-bar': {
-                                backgroundColor: riskInfo.color
-                              }
-                            }}
-                          />
-                        </Box>
-                      </CardContent>
-                    </Card>
-                    
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                      Key Findings:
-                    </Typography>
-                    
-                    {/* Key findings based on inputs */}
-                    <Box sx={{ display: 'grid', gap: 2 }}>
-                      {/* Size-based finding */}
-                      <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Box 
-                          sx={{ 
-                            width: 28, 
-                            height: 28, 
-                            borderRadius: '50%', 
-                            bgcolor: 'rgba(244, 67, 54, 0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          <WarningIcon sx={{ fontSize: 16, color: theme.palette.error.main }} />
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {employeeCount && `${employeeCount} without dedicated security staff`}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {hasSecurityStaff === 'no' && 'Having no dedicated security personnel increases risk for a business of your size'}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      
-                      {/* Threat awareness finding */}
-                      <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Box 
-                          sx={{ 
-                            width: 28, 
-                            height: 28, 
-                            borderRadius: '50%', 
-                            bgcolor: selectedThreats.length > 5 ? 'rgba(3, 218, 198, 0.1)' : 'rgba(255, 193, 7, 0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          {selectedThreats.length > 5 ? (
-                            <CheckCircleIcon sx={{ fontSize: 16, color: theme.palette.secondary.main }} />
-                          ) : (
-                            <PendingIcon sx={{ fontSize: 16, color: theme.palette.warning.main }} />
-                          )}
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {selectedThreats.length > 5 ? 'Good threat awareness' : 'Limited threat awareness'}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {selectedThreats.length > 5 
-                              ? 'Your awareness of multiple threat vectors will help in building a comprehensive security strategy' 
-                              : 'Being aware of more potential threats would improve your security posture'}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      
-                      {/* Maturity finding */}
-                      <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Box 
-                          sx={{ 
-                            width: 28, 
-                            height: 28, 
-                            borderRadius: '50%', 
-                            bgcolor: securityMaturity && securityMaturity > 3 ? 'rgba(3, 218, 198, 0.1)' : 'rgba(255, 193, 7, 0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          {securityMaturity && securityMaturity > 3 ? (
-                            <CheckCircleIcon sx={{ fontSize: 16, color: theme.palette.secondary.main }} />
-                          ) : (
-                            <PendingIcon sx={{ fontSize: 16, color: theme.palette.warning.main }} />
-                          )}
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {securityMaturity && securityMaturity > 3 ? 'Advanced security maturity' : 'Developing security maturity'}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {securityMaturity && securityMaturity > 3 
-                              ? 'Your organization has implemented good security practices' 
-                              : 'There is room to improve your organization\'s security practices and policies'}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
-                  
-                  <Divider sx={{ my: 3, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-                  
-                  {/* Recommended actions */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                      Recommended Actions:
-                    </Typography>
-                    
-                    <Box sx={{ display: 'grid', gap: 2 }}>
-                      {/* Action 1 */}
-                      <Card sx={{ 
-                        backgroundColor: 'rgba(30, 30, 30, 0.5)',
-                        borderRadius: 2,
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}>
-                        <CardContent>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                            1. Schedule a comprehensive security assessment
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Our student consultants can perform a detailed on-site assessment to identify specific vulnerabilities and provide customized recommendations.
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                      
-                      {/* Action 2 */}
-                      <Card sx={{ 
-                        backgroundColor: 'rgba(30, 30, 30, 0.5)',
-                        borderRadius: 2,
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}>
-                        <CardContent>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                            2. Implement basic security controls
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Enable multi-factor authentication, implement data backups, and ensure all systems are up-to-date with security patches.
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                      
-                      {/* Action 3 */}
-                      <Card sx={{ 
-                        backgroundColor: 'rgba(30, 30, 30, 0.5)',
-                        borderRadius: 2,
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}>
-                        <CardContent>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                            3. Conduct staff security awareness training
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Employee education is one of the most cost-effective ways to improve security. Our team can provide customized training sessions.
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Box>
-                  </Box>
-                  
-                  <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: 'rgba(98, 0, 234, 0.1)', border: '1px solid rgba(98, 0, 234, 0.2)' }}>
-                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 1 }}>
-                      <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 32, height: 32 }}>
-                        <SchoolIcon sx={{ fontSize: 16 }} />
-                      </Avatar>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        Manhattanville University Student Consultant Team
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" color="textSecondary">
-                      Our team of cybersecurity students is ready to help implement these recommendations. We provide affordable security services to local businesses while gaining valuable real-world experience under faculty supervision.
-                    </Typography>
-                  </Box>
-                </>
-              )}
-            </Box>
+              </StepContent>
+            </Step>
             
-            <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-              <Button onClick={handleBack} sx={{ mr: 1 }}>
-                Back
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleReset}
-                sx={{ 
-                  background: 'linear-gradient(45deg, #6200ea 30%, #7c4dff 90%)',
+            <Step>
+              <StepLabel
+                StepIconProps={{
+                  icon: <SecurityIcon />,
+                  sx: { 
+                    fontSize: 28,
+                    color: activeStep >= 1 ? theme.palette.primary.main : 'grey.500'
+                  }
                 }}
               >
-                Start New Assessment
-              </Button>
-            </Box>
-          </StepContent>
-        </Step>
-      </Stepper>
-    </Paper>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Security Concerns
+                </Typography>
+              </StepLabel>
+              <StepContent>
+                <Box sx={{ mb: 3, p: 2, bgcolor: 'rgba(25, 118, 210, 0.04)', borderRadius: 2, border: '1px solid rgba(25, 118, 210, 0.1)' }}>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    What security concerns are you most worried about? Select all that apply.
+                  </Typography>
+                  
+                  <FormControl component="fieldset" sx={{ mb: 3, width: '100%' }}>
+                    <FormGroup>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
+                        {threatConcerns.map((threat) => (
+                          <FormControlLabel
+                            key={threat}
+                            control={
+                              <Checkbox 
+                                checked={selectedThreats.includes(threat)}
+                                onChange={handleThreatChange}
+                                value={threat}
+                                color="primary"
+                              />
+                            }
+                            label={threat}
+                          />
+                        ))}
+                      </Box>
+                    </FormGroup>
+                  </FormControl>
+                  
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" gutterBottom>
+                      How would you rate your organization's current security maturity?
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                      <Typography variant="caption">Basic</Typography>
+                      <Rating
+                        value={securityMaturity}
+                        onChange={(_, newValue) => {
+                          if (newValue !== null) {
+                            setSecurityMaturity(newValue);
+                          }
+                        }}
+                        max={5}
+                        size="large"
+                      />
+                      <Typography variant="caption">Advanced</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    onClick={handleBack}
+                    sx={{ px: 3 }}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleNext}
+                    sx={{ 
+                      py: 1.2,
+                      px: 3,
+                      background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                      fontWeight: 600
+                    }}
+                  >
+                    Continue
+                  </Button>
+                </Box>
+              </StepContent>
+            </Step>
+            
+            <Step>
+              <StepLabel
+                StepIconProps={{
+                  icon: <ArticleIcon />,
+                  sx: { 
+                    fontSize: 28,
+                    color: activeStep >= 2 ? theme.palette.primary.main : 'grey.500'
+                  }
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Assessment Results
+                </Typography>
+              </StepLabel>
+              <StepContent>
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="body2" sx={{ mb: 3 }}>
+                    Based on your inputs, we've prepared an initial security assessment for your business.
+                  </Typography>
+                  
+                  {!reportGenerated ? (
+                    <Box sx={{ mb: 3 }}>
+                      <Button
+                        variant="contained"
+                        onClick={handleGenerateReport}
+                        sx={{ 
+                          py: 1.2,
+                          px: 3,
+                          mb: 2,
+                          background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                          fontWeight: 600
+                        }}
+                      >
+                        Generate Assessment
+                      </Button>
+                      <LinearProgress sx={{ height: 6, borderRadius: 3 }} />
+                    </Box>
+                  ) : (
+                    <>
+                      <Box sx={{ mb: 4 }}>
+                        <Card sx={{ 
+                          mb: 3, 
+                          borderRadius: 2,
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                          overflow: 'hidden'
+                        }}>
+                          <Box sx={{ 
+                            p: 2, 
+                            background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                          }}>
+                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
+                              Your Security Risk Assessment
+                            </Typography>
+                          </Box>
+                          
+                          <CardContent>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                              <Avatar 
+                                sx={{ 
+                                  bgcolor: `${riskInfo.color}20`,
+                                  color: riskInfo.color,
+                                  width: 64,
+                                  height: 64,
+                                  mr: 2
+                                }}
+                              >
+                                <Typography variant="h5" fontWeight={700}>
+                                  {riskScore}%
+                                </Typography>
+                              </Avatar>
+                              <Box>
+                                <Typography variant="body2" color="textSecondary">
+                                  Risk Score
+                                </Typography>
+                                <Chip 
+                                  label={riskInfo.label}
+                                  sx={{ 
+                                    bgcolor: `${riskInfo.color}15`,
+                                    color: riskInfo.color,
+                                    fontWeight: 600,
+                                    mt: 0.5
+                                  }}
+                                />
+                              </Box>
+                            </Box>
+                            
+                            <Box sx={{ mt: 2 }}>
+                              <LinearProgress 
+                                variant="determinate" 
+                                value={riskScore} 
+                                sx={{ 
+                                  height: 10, 
+                                  borderRadius: 5,
+                                  bgcolor: 'rgba(0, 0, 0, 0.05)',
+                                  '& .MuiLinearProgress-bar': {
+                                    bgcolor: riskInfo.color
+                                  }
+                                }}
+                              />
+                            </Box>
+                          </CardContent>
+                        </Card>
+                        
+                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                          Key Findings:
+                        </Typography>
+                        
+                        {/* Key findings based on inputs */}
+                        <Box sx={{ display: 'grid', gap: 2 }}>
+                          {/* Size-based finding */}
+                          <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                            <CardContent sx={{ display: 'flex', gap: 2 }}>
+                              <Avatar
+                                sx={{ 
+                                  bgcolor: hasSecurityStaff === 'no' ? 'rgba(244, 67, 54, 0.1)' : 'rgba(76, 175, 80, 0.1)',
+                                  color: hasSecurityStaff === 'no' ? theme.palette.error.main : theme.palette.success.main
+                                }}
+                              >
+                                {hasSecurityStaff === 'no' ? <WarningIcon /> : <CheckCircleIcon />}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                  {employeeCount && hasSecurityStaff === 'no' ? `${employeeCount} without dedicated security staff` : 'Security Staffing'}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  {hasSecurityStaff === 'no' ? 
+                                    'Having no dedicated security personnel increases risk for a business of your size' : 
+                                    'Your security staffing provides a good foundation for your security posture'}
+                                </Typography>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                          
+                          {/* Threat awareness finding */}
+                          <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                            <CardContent sx={{ display: 'flex', gap: 2 }}>
+                              <Avatar
+                                sx={{ 
+                                  bgcolor: selectedThreats.length > 5 ? 'rgba(3, 169, 244, 0.1)' : 'rgba(255, 152, 0, 0.1)',
+                                  color: selectedThreats.length > 5 ? theme.palette.secondary.main : theme.palette.warning.main
+                                }}
+                              >
+                                {selectedThreats.length > 5 ? <CheckCircleIcon /> : <PendingIcon />}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                  {selectedThreats.length > 5 ? 'Good threat awareness' : 'Limited threat awareness'}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  {selectedThreats.length > 5 
+                                    ? 'Your awareness of multiple threat vectors will help in building a comprehensive security strategy' 
+                                    : 'Being aware of more potential threats would improve your security posture'}
+                                </Typography>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                          
+                          {/* Maturity finding */}
+                          <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                            <CardContent sx={{ display: 'flex', gap: 2 }}>
+                              <Avatar
+                                sx={{ 
+                                  bgcolor: securityMaturity && securityMaturity > 3 ? 'rgba(3, 169, 244, 0.1)' : 'rgba(255, 152, 0, 0.1)',
+                                  color: securityMaturity && securityMaturity > 3 ? theme.palette.secondary.main : theme.palette.warning.main
+                                }}
+                              >
+                                {securityMaturity && securityMaturity > 3 ? <CheckCircleIcon /> : <PendingIcon />}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                  {securityMaturity && securityMaturity > 3 ? 'Advanced security maturity' : 'Developing security maturity'}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  {securityMaturity && securityMaturity > 3 
+                                    ? 'Your organization has implemented good security practices' 
+                                    : 'There is room to improve your organization\'s security practices and policies'}
+                                </Typography>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                        </Box>
+                      </Box>
+                      
+                      <Divider sx={{ my: 3 }} />
+                      
+                      {/* Recommended actions */}
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                          Recommended Actions:
+                        </Typography>
+                        
+                        <Box sx={{ display: 'grid', gap: 2 }}>
+                          {/* Action 1 */}
+                          <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                            <CardContent>
+                              <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                                <Avatar sx={{ bgcolor: theme.palette.primary.main, mr: 2 }}>1</Avatar>
+                                <Box>
+                                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                    Schedule a comprehensive security assessment
+                                  </Typography>
+                                  <Typography variant="body2" color="textSecondary">
+                                    Our student consultants can perform a detailed on-site assessment to identify specific vulnerabilities and provide customized recommendations.
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                          
+                          {/* Action 2 */}
+                          <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                            <CardContent>
+                              <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                                <Avatar sx={{ bgcolor: theme.palette.secondary.main, mr: 2 }}>2</Avatar>
+                                <Box>
+                                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                    Implement basic security controls
+                                  </Typography>
+                                  <Typography variant="body2" color="textSecondary">
+                                    Enable multi-factor authentication, implement data backups, and ensure all systems are up-to-date with security patches.
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                          
+                          {/* Action 3 */}
+                          <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                            <CardContent>
+                              <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                                <Avatar sx={{ bgcolor: '#7e57c2', mr: 2 }}>3</Avatar>
+                                <Box>
+                                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                    Conduct staff security awareness training
+                                  </Typography>
+                                  <Typography variant="body2" color="textSecondary">
+                                    Employee education is one of the most cost-effective ways to improve security. Our team can provide customized training sessions.
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                        </Box>
+                      </Box>
+                      
+                      <Card sx={{ 
+                        mb: 3, 
+                        borderRadius: 2,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                        bgcolor: 'rgba(25, 118, 210, 0.04)',
+                        border: '1px solid rgba(25, 118, 210, 0.1)',
+                      }}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                            <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
+                              <SchoolIcon />
+                            </Avatar>
+                            <Box>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                Manhattanville University Student Consultant Team
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary">
+                                Our team of cybersecurity students is ready to help implement these recommendations. We provide affordable security services to local businesses while gaining valuable real-world experience under faculty supervision.
+                              </Typography>
+                              <Button 
+                                variant="outlined" 
+                                color="primary"
+                                sx={{ mt: 2 }}
+                                startIcon={<HelpOutlineIcon />}
+                              >
+                                Request Consultation
+                              </Button>
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </>
+                  )}
+                </Box>
+                
+                <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    onClick={handleBack}
+                    sx={{ px: 3 }}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleReset}
+                    startIcon={<ShieldIcon />}
+                    sx={{ 
+                      py: 1.2,
+                      px: 3,
+                      background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                      fontWeight: 600
+                    }}
+                  >
+                    Start New Assessment
+                  </Button>
+                </Box>
+              </StepContent>
+            </Step>
+          </Stepper>
+        </Box>
+        
+        {/* Footer */}
+        <Box sx={{ 
+          mt: 4, 
+          pt: 3, 
+          borderTop: '1px solid rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          position: 'relative',
+          zIndex: 1
+        }}>
+          <Typography variant="body2" color="textSecondary">
+            © {new Date().getFullYear()} Rocky Security Solutions | Manhattanville University
+          </Typography>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 

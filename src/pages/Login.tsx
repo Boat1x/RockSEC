@@ -14,12 +14,18 @@ import {
   InputAdornment,
   IconButton,
   Alert,
-  CircularProgress
+  CircularProgress,
+  ToggleButtonGroup,
+  ToggleButton,
+  Card,
+  CardContent
 } from '@mui/material';
 import SecurityIcon from '@mui/icons-material/Security';
 import SchoolIcon from '@mui/icons-material/School';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import PersonIcon from '@mui/icons-material/Person';
+import BusinessIcon from '@mui/icons-material/Business';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../App';
 
@@ -35,6 +41,7 @@ const Login: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [userType, setUserType] = useState<'consultant' | 'client'>('consultant');
 
   // Get the intended destination from location state, or default to '/'
   const from = (location.state as any)?.from?.pathname || '/';
@@ -45,7 +52,10 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
-      const success = await login(email, password);
+      // Always use client@example.com when client type is selected
+      const emailToUse = userType === 'client' ? 'client@example.com' : email;
+      
+      const success = await login(emailToUse, password);
       if (success) {
         // Navigate to the page they were trying to access
         navigate(from, { replace: true });
@@ -65,6 +75,13 @@ const Login: React.FC = () => {
     setShowPassword(!showPassword);
   };
 
+  // Handle user type selection
+  const handleUserTypeChange = (_event: React.MouseEvent<HTMLElement>, newType: 'consultant' | 'client') => {
+    if (newType !== null) {
+      setUserType(newType);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -72,8 +89,7 @@ const Login: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f5f7fa',
-        backgroundImage: 'linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)',
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)',
         p: 2
       }}
     >
@@ -110,8 +126,112 @@ const Login: React.FC = () => {
               Welcome Back
             </Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mb: 4 }}>
-              Sign in to your student consultant account to continue
+              Sign in to access the security platform
             </Typography>
+            
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+                Choose account type:
+              </Typography>
+              <ToggleButtonGroup
+                value={userType}
+                exclusive
+                onChange={handleUserTypeChange}
+                aria-label="user type"
+                fullWidth
+                sx={{ mb: 2 }}
+              >
+                <ToggleButton 
+                  value="consultant" 
+                  aria-label="consultant"
+                  sx={{ 
+                    py: 2, 
+                    borderRadius: '8px 0 0 8px',
+                    '&.Mui-selected': {
+                      bgcolor: 'rgba(25, 118, 210, 0.08)',
+                      fontWeight: 600
+                    }
+                  }}
+                >
+                  <PersonIcon sx={{ mr: 1 }} />
+                  Security Consultant
+                </ToggleButton>
+                <ToggleButton 
+                  value="client" 
+                  aria-label="client"
+                  sx={{ 
+                    py: 2, 
+                    borderRadius: '0 8px 8px 0',
+                    '&.Mui-selected': {
+                      bgcolor: 'rgba(3, 169, 244, 0.08)',
+                      fontWeight: 600
+                    }
+                  }}
+                >
+                  <BusinessIcon sx={{ mr: 1 }} />
+                  Client Access
+                </ToggleButton>
+              </ToggleButtonGroup>
+              
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6}>
+                  <Card 
+                    variant="outlined" 
+                    sx={{ 
+                      height: '100%',
+                      borderColor: userType === 'consultant' ? theme.palette.primary.main : 'divider',
+                      bgcolor: userType === 'consultant' ? 'rgba(25, 118, 210, 0.04)' : 'transparent',
+                      borderRadius: 2
+                    }}
+                  >
+                    <CardContent sx={{ p: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <PersonIcon 
+                          sx={{ 
+                            mr: 1, 
+                            color: userType === 'consultant' ? theme.palette.primary.main : 'text.secondary'
+                          }} 
+                        />
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                          Consultant Portal
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" color="textSecondary">
+                        For Manhattanville student consultants managing client security assessments
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Card 
+                    variant="outlined" 
+                    sx={{ 
+                      height: '100%',
+                      borderColor: userType === 'client' ? theme.palette.secondary.main : 'divider',
+                      bgcolor: userType === 'client' ? 'rgba(3, 169, 244, 0.04)' : 'transparent',
+                      borderRadius: 2
+                    }}
+                  >
+                    <CardContent sx={{ p: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <BusinessIcon 
+                          sx={{ 
+                            mr: 1, 
+                            color: userType === 'client' ? theme.palette.secondary.main : 'text.secondary'
+                          }} 
+                        />
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                          Client Access
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" color="textSecondary">
+                        For businesses to view security assessments and implement recommendations
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
             
             {error && (
               <Alert severity="error" sx={{ mb: 3 }}>
@@ -126,9 +246,10 @@ const Login: React.FC = () => {
                 type="email"
                 fullWidth
                 required
-                value={email}
+                value={userType === 'client' ? 'client@example.com' : email}
                 onChange={(e) => setEmail(e.target.value)}
                 sx={{ mb: 3 }}
+                helperText={userType === 'client' ? "Using demo client email for testing" : ""}
               />
               
               <TextField
@@ -186,7 +307,10 @@ const Login: React.FC = () => {
                   py: 1.5, 
                   fontSize: '1rem', 
                   fontWeight: 600,
-                  borderRadius: 2
+                  borderRadius: 2,
+                  background: userType === 'consultant' 
+                    ? 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)'
+                    : 'linear-gradient(45deg, #03a9f4 30%, #4fc3f7 90%)',
                 }}
                 disabled={isLoading}
               >
@@ -220,7 +344,9 @@ const Login: React.FC = () => {
             
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
               <Typography variant="caption" color="textSecondary">
-                For demo purposes, use: student@manhattanville.edu / password123
+                {userType === 'consultant' 
+                  ? 'For demo purposes, use: student@manhattanville.edu / password123'
+                  : 'For client demo, use: client@example.com / password123'}
               </Typography>
             </Box>
           </Paper>
