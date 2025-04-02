@@ -15,6 +15,7 @@ import AddIcon from '@mui/icons-material/Add';
 import InfoIcon from '@mui/icons-material/Info';
 import ShieldIcon from '@mui/icons-material/Shield';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 interface ThreatData {
   id: number;

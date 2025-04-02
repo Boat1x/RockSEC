@@ -19,9 +19,9 @@ import {
   LinearProgress,
   Menu,
   MenuItem,
-  IconButton
+  IconButton,
+  useTheme
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 
 // Icons
 import PersonIcon from '@mui/icons-material/Person';
@@ -33,6 +33,17 @@ import AddIcon from '@mui/icons-material/Add';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import TimerIcon from '@mui/icons-material/Timer';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import SaveIcon from '@mui/icons-material/Save';
+import PrintIcon from '@mui/icons-material/Print';
+import ShareIcon from '@mui/icons-material/Share';
+import Badge from '@mui/material/Badge';
+import EventIcon from '@mui/icons-material/Event';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -64,7 +75,12 @@ const ConsultantDashboard: React.FC = () => {
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-
+  const [notificationsAnchorEl, setNotificationsAnchorEl] = useState<null | HTMLElement>(null);
+  
+  // Get current time for greeting
+  const currentHour = new Date().getHours();
+  const greeting = currentHour < 12 ? "Good morning" : currentHour < 18 ? "Good afternoon" : "Good evening";
+  
   // Sample data for the consultant dashboard
   const consultantStats = [
     { title: 'Active Clients', value: '5', icon: <BusinessIcon />, color: theme.palette.primary.main },
@@ -189,6 +205,37 @@ const ConsultantDashboard: React.FC = () => {
     }
   ];
 
+  // Sample notifications
+  const notifications = [
+    { id: 1, message: "Harbor Dental Group assessment due tomorrow", type: "warning" },
+    { id: 2, message: "New vulnerability found for Riverside Café", type: "alert" },
+    { id: 3, message: "Training session scheduled for tomorrow", type: "info" },
+    { id: 4, message: "Report approved by manager", type: "success" },
+  ];
+
+  // Sample upcoming appointments
+  const appointments = [
+    { title: "Client Meeting", client: "Harbor Dental Group", time: "Today, 2:00 PM", location: "On-site" },
+    { title: "Security Training", client: "Riverside Café", time: "Tomorrow, 10:00 AM", location: "Virtual" },
+    { title: "Assessment Review", client: "Westfield Law Partners", time: "Mar 4, 9:30 AM", location: "On-site" }
+  ];
+
+  // Quick action items for SpeedDial
+  const actions = [
+    { icon: <FileCopyIcon />, name: 'New Assessment' },
+    { icon: <SaveIcon />, name: 'Save Report' },
+    { icon: <PrintIcon />, name: 'Print' },
+    { icon: <ShareIcon />, name: 'Share' },
+  ];
+
+  // Security recommendations
+  const recommendations = [
+    "Review Harbor Dental Group's firewall settings",
+    "Update security awareness training materials",
+    "Schedule follow-up with Riverside Café about password policy",
+    "Recommend MFA implementation for Westfield Law Partners"
+  ];
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
@@ -201,11 +248,44 @@ const ConsultantDashboard: React.FC = () => {
     setMenuAnchorEl(event.currentTarget);
   };
 
+  const handleNotificationMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationsAnchorEl(event.currentTarget);
+  };
+  
+  const handleNotificationMenuClose = () => {
+    setNotificationsAnchorEl(null);
+  };
+
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
-        Student Consultant Dashboard
-      </Typography>
+      {/* Top Bar with Welcome and Notifications */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+            {greeting}, John
+          </Typography>
+          <Typography variant="body1" color="textSecondary">
+            Student Consultant Dashboard
+          </Typography>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <IconButton 
+            size="large" 
+            onClick={handleNotificationMenuOpen}
+            sx={{ 
+              bgcolor: 'rgba(25, 118, 210, 0.08)',
+              '&:hover': {
+                bgcolor: 'rgba(25, 118, 210, 0.15)',
+              }
+            }}
+          >
+            <Badge badgeContent={notifications.length} color="error">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+        </Box>
+      </Box>
       
       <Grid container spacing={3}>
         {/* Consultant Profile Card */}
@@ -328,8 +408,78 @@ const ConsultantDashboard: React.FC = () => {
             ))}
           </Grid>
           
+          {/* Recommendations Card */}
+          <Paper sx={{ 
+            p: 2, 
+            mt: 3, 
+            mb: 3, 
+            borderRadius: 2,
+            bgcolor: 'rgba(103, 58, 183, 0.05)', 
+            border: '1px dashed rgba(103, 58, 183, 0.3)'
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <LightbulbIcon sx={{ color: '#673ab7', mr: 1 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Insights & Recommendations
+              </Typography>
+            </Box>
+            <List dense>
+              {recommendations.map((rec, index) => (
+                <ListItem key={index} sx={{ py: 0.5 }}>
+                  <ListItemText 
+                    primary={rec}
+                    primaryTypographyProps={{ variant: 'body2' }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
+          
+          {/* Calendar Widget */}
+          <Paper sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <EventIcon sx={{ color: theme.palette.primary.main, mr: 1 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Upcoming Appointments
+              </Typography>
+            </Box>
+            <List dense>
+              {appointments.map((apt, index) => (
+                <React.Fragment key={index}>
+                  <ListItem alignItems="flex-start">
+                    <ListItemText
+                      primary={
+                        <Typography variant="subtitle2" fontWeight={600}>
+                          {apt.title} with {apt.client}
+                        </Typography>
+                      }
+                      secondary={
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                          <Typography variant="body2" color="textSecondary">
+                            {apt.time}
+                          </Typography>
+                          <Chip 
+                            label={apt.location} 
+                            size="small" 
+                            sx={{ 
+                              height: 20, 
+                              fontSize: '0.7rem',
+                              bgcolor: apt.location === 'Virtual' ? 'rgba(76, 175, 80, 0.1)' : 'rgba(25, 118, 210, 0.1)',
+                              color: apt.location === 'Virtual' ? '#4caf50' : theme.palette.primary.main,
+                            }}
+                          />
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                  {index < appointments.length - 1 && <Divider component="li" />}
+                </React.Fragment>
+              ))}
+            </List>
+          </Paper>
+          
           {/* Tabs Section */}
-          <Paper sx={{ mt: 3, borderRadius: 2 }}>
+          <Paper sx={{ borderRadius: 2 }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs 
                 value={tabValue} 
@@ -537,6 +687,66 @@ const ConsultantDashboard: React.FC = () => {
           Remove Client
         </MenuItem>
       </Menu>
+      
+      {/* Notifications Menu */}
+      <Menu
+        anchorEl={notificationsAnchorEl}
+        open={Boolean(notificationsAnchorEl)}
+        onClose={handleNotificationMenuClose}
+        PaperProps={{
+          sx: {
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            borderRadius: 2,
+            width: 320,
+            maxHeight: 400
+          }
+        }}
+      >
+        <Box sx={{ px: 2, py: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="subtitle1" fontWeight={600}>Notifications</Typography>
+          <Button size="small">Mark all as read</Button>
+        </Box>
+        <Divider />
+        {notifications.map((notification) => (
+          <MenuItem 
+            key={notification.id} 
+            onClick={handleNotificationMenuClose}
+            sx={{ 
+              py: 1.5,
+              borderLeft: '4px solid',
+              borderLeftColor: 
+                notification.type === 'warning' ? '#ff9800' : 
+                notification.type === 'alert' ? '#f44336' :
+                notification.type === 'success' ? '#4caf50' : '#2196f3'
+            }}
+          >
+            <ListItemText
+              primary={notification.message}
+              secondary="Just now"
+            />
+          </MenuItem>
+        ))}
+        <Divider />
+        <MenuItem sx={{ justifyContent: 'center' }}>
+          <Button size="small" fullWidth>View All Notifications</Button>
+        </MenuItem>
+      </Menu>
+      
+      {/* Quick Actions SpeedDial */}
+      <SpeedDial
+        ariaLabel="Quick Actions"
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        icon={<SpeedDialIcon />}
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            tooltipOpen
+          />
+        ))}
+      </SpeedDial>
     </Box>
   );
 };

@@ -1,13 +1,16 @@
-import React, { useState, useEffect, createContext } from 'react';
+import React, { useState } from 'react';
 import { createBrowserRouter, RouterProvider, Outlet, Navigate, useLocation } from "react-router-dom";
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 // Theme Provider
 import ThemeProvider from './ThemeProvider';
 
+// Context
+import { AuthProvider, AuthContext } from './context/AuthContext';
+
 // Components
-import Navbar from "./components/Navbar";
-import Sidebar from "./pages/Sidebar";
+import ConsultantNavbar from "./components/ConsultantNavbar";
+import ConsultantSidebar from "./components/ConsultantSidebar";
 
 // Pages
 import Dashboard from "./pages/Dashboard"; 
@@ -24,99 +27,39 @@ import Login from "./pages/Login";
 const ClientDetail: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Client Detail Page
-      </Typography>
-      <Typography variant="body1">
-        This page is under construction.
-      </Typography>
+      <p>Client Detail Page - Under Construction</p>
     </Box>
   );
 };
 
-// Context
-export const AuthContext = createContext<{
-  isAuthenticated: boolean;
-  userType: 'consultant' | 'client' | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-}>({
-  isAuthenticated: false,
-  userType: null,
-  login: async () => false,
-  logout: () => {},
-});
-
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userType, setUserType] = useState<'consultant' | 'client' | null>(null);
-  
-  // Check if user is logged in when app loads
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const storedUserType = localStorage.getItem('user_type');
-    
-    if (token) {
-      setIsAuthenticated(true);
-      setUserType(storedUserType as 'consultant' | 'client' || 'consultant');
-    }
-  }, []);
-
-  // Login function
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Demo login logic - in a real app this would validate with a backend
-    if (email === 'student@manhattanville.edu' && password === 'password123') {
-      // Store token in localStorage
-      localStorage.setItem('auth_token', 'demo_token');
-      localStorage.setItem('user_type', 'consultant');
-      setIsAuthenticated(true);
-      setUserType('consultant');
-      return true;
-    } else if (email === 'client@example.com' && password === 'password123') {
-      // Client login
-      localStorage.setItem('auth_token', 'client_token');
-      localStorage.setItem('user_type', 'client');
-      setIsAuthenticated(true);
-      setUserType('client');
-      return true;
-    }
-    return false;
-  };
-
-  // Logout function
-  const logout = (): void => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_type');
-    setIsAuthenticated(false);
-    setUserType(null);
-  };
-
   // Router configuration
   const router = createBrowserRouter([
     {
       path: "/login",
-      element: <Login />,
+      element: (
+        <AuthWrapper>
+          <Login />
+        </AuthWrapper>
+      ),
     },
     {
       path: "/",
       element: (
         <ProtectedRoute>
-          {userType === 'client' ? <ClientLayout /> : <ConsultantLayout />}
+          <ConsultantLayout />
         </ProtectedRoute>
       ),
       errorElement: <ErrorPage />,
       children: [
-        // Routes accessible to both consultants and clients
         {
           index: true,
-          element: userType === 'client' ? <ClientDashboard /> : <Dashboard />,
+          element: <Dashboard />,
         },
         {
           path: "/assessment",
           element: <BusinessAssessment />,
         },
-        
-        // Routes primarily for consultants
         {
           path: "/history",
           element: <History />,
@@ -137,8 +80,6 @@ const App: React.FC = () => {
           path: "/clients/:clientId",
           element: <ClientDetail />,
         },
-        
-        // Fallback route
         {
           path: "*",
           element: <Navigate to="/" replace />
@@ -148,15 +89,13 @@ const App: React.FC = () => {
   ]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userType, login, logout }}>
+    <AuthProvider>
       <ThemeProvider>
         <RouterProvider router={router} />
       </ThemeProvider>
-    </AuthContext.Provider>
+    </AuthProvider>
   );
 }
-
-export default App;
 
 // Auth-protected route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -166,6 +105,19 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   if (!isAuthenticated) {
     // Redirect to login and save the location they were trying to access
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Authentication wrapper to prevent authenticated users from accessing login
+const AuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = React.useContext(AuthContext);
+  const location = useLocation();
+
+  // If already authenticated, redirect to home page
+  if (isAuthenticated && location.pathname === '/login') {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -185,8 +137,8 @@ const ConsultantLayout: React.FC = () => {
   
   return (
     <>
-      <Navbar open={open} handleDrawerOpen={handleDrawerOpen} />
-      <Sidebar open={open} handleDrawerClose={handleDrawerClose} />
+      <ConsultantNavbar open={open} handleDrawerOpen={handleDrawerOpen} />
+      <ConsultantSidebar open={open} handleDrawerClose={handleDrawerClose} />
       <div style={{ 
         paddingLeft: open ? '260px' : '0',
         paddingTop: '64px',
@@ -201,29 +153,4 @@ const ConsultantLayout: React.FC = () => {
   );
 };
 
-// Layout component with simplified navbar for clients
-const ClientLayout: React.FC = () => {
-  const [open, setOpen] = useState<boolean>(false);
-  
-  const handleDrawerOpen = (): void => {
-    setOpen(true);
-  };
-  
-  const handleDrawerClose = (): void => {
-    setOpen(false);
-  };
-  
-  return (
-    <>
-      <Navbar open={open} handleDrawerOpen={handleDrawerOpen} />
-      <div style={{ 
-        paddingTop: '64px',
-        width: '100%',
-        minHeight: '100vh',
-        backgroundColor: '#f5f7fa',
-      }}>
-        <Outlet />
-      </div>
-    </>
-  );
-};
+export default App;
