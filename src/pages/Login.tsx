@@ -1,33 +1,34 @@
-import React, { useState, useContext } from 'react';
-import { 
-  Box, 
-  Paper, 
-  Typography, 
-  TextField, 
-  Button, 
-  Divider, 
-  Grid, 
-  Link, 
-  FormControlLabel, 
-  Checkbox,
-  useTheme,
-  InputAdornment,
-  IconButton,
-  Alert,
-  CircularProgress,
-  ToggleButtonGroup,
-  ToggleButton,
-  Card,
-  CardContent
-} from '@mui/material';
-import SecurityIcon from '@mui/icons-material/Security';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import BusinessIcon from '@mui/icons-material/Business';
+import PersonIcon from '@mui/icons-material/Person';
 import SchoolIcon from '@mui/icons-material/School';
+import SecurityIcon from '@mui/icons-material/Security';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import PersonIcon from '@mui/icons-material/Person';
-import BusinessIcon from '@mui/icons-material/Business';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../App';
+import {
+    Alert,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Checkbox,
+    CircularProgress,
+    Divider,
+    FormControlLabel,
+    Grid,
+    IconButton,
+    InputAdornment,
+    Link,
+    Paper,
+    TextField,
+    ToggleButton,
+    ToggleButtonGroup,
+    Typography,
+    useTheme
+} from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Login: React.FC = () => {
   const theme = useTheme();
@@ -41,7 +42,7 @@ const Login: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [userType, setUserType] = useState<'consultant' | 'client'>('consultant');
+  const [userType, setUserType] = useState<'consultant' | 'client' | 'admin'>('consultant');
 
   // Get the intended destination from location state, or default to '/'
   const from = (location.state as any)?.from?.pathname || '/';
@@ -52,13 +53,23 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Always use client@example.com when client type is selected
-      const emailToUse = userType === 'client' ? 'client@example.com' : email;
+      // Use predefined emails based on user type selection
+      let emailToUse = email;
+      if (userType === 'client') {
+        emailToUse = 'client@example.com';
+      } else if (userType === 'admin') {
+        emailToUse = 'admin@rocky.edu';
+      }
       
-      const success = await login(emailToUse, password);
+      const success = await login(emailToUse, password, userType);
       if (success) {
-        // Navigate to the page they were trying to access
-        navigate(from, { replace: true });
+        // Navigate to the appropriate page based on user type
+        if (userType === 'admin') {
+          navigate('/admin/dashboard', { replace: true });
+        } else {
+          // Navigate to the page they were trying to access
+          navigate(from, { replace: true });
+        }
       } else {
         setError('Invalid email or password. Please try again.');
       }
@@ -76,7 +87,7 @@ const Login: React.FC = () => {
   };
 
   // Handle user type selection
-  const handleUserTypeChange = (_event: React.MouseEvent<HTMLElement>, newType: 'consultant' | 'client') => {
+  const handleUserTypeChange = (_event: React.MouseEvent<HTMLElement>, newType: 'consultant' | 'client' | 'admin') => {
     if (newType !== null) {
       setUserType(newType);
     }
@@ -146,7 +157,7 @@ const Login: React.FC = () => {
                   aria-label="consultant"
                   sx={{ 
                     py: 2, 
-                    borderRadius: '8px 0 0 8px',
+                    borderRadius: '8px 0 0 0',
                     '&.Mui-selected': {
                       bgcolor: 'rgba(25, 118, 210, 0.08)',
                       fontWeight: 600
@@ -161,7 +172,7 @@ const Login: React.FC = () => {
                   aria-label="client"
                   sx={{ 
                     py: 2, 
-                    borderRadius: '0 8px 8px 0',
+                    borderRadius: '0',
                     '&.Mui-selected': {
                       bgcolor: 'rgba(3, 169, 244, 0.08)',
                       fontWeight: 600
@@ -171,65 +182,113 @@ const Login: React.FC = () => {
                   <BusinessIcon sx={{ mr: 1 }} />
                   Client Access
                 </ToggleButton>
+                <ToggleButton 
+                  value="admin" 
+                  aria-label="admin"
+                  sx={{ 
+                    py: 2, 
+                    borderRadius: '0 8px 0 0',
+                    '&.Mui-selected': {
+                      bgcolor: 'rgba(63, 81, 181, 0.08)',
+                      fontWeight: 600
+                    }
+                  }}
+                >
+                  <AdminPanelSettingsIcon sx={{ mr: 1 }} />
+                  Admin Panel
+                </ToggleButton>
               </ToggleButtonGroup>
               
               <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={12} sm={6}>
-                  <Card 
-                    variant="outlined" 
-                    sx={{ 
-                      height: '100%',
-                      borderColor: userType === 'consultant' ? theme.palette.primary.main : 'divider',
-                      bgcolor: userType === 'consultant' ? 'rgba(25, 118, 210, 0.04)' : 'transparent',
-                      borderRadius: 2
-                    }}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <PersonIcon 
-                          sx={{ 
-                            mr: 1, 
-                            color: userType === 'consultant' ? theme.palette.primary.main : 'text.secondary'
-                          }} 
-                        />
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          Consultant Portal
+                {userType !== 'admin' ? (
+                  <>
+                    <Grid item xs={12} sm={6}>
+                      <Card 
+                        variant="outlined" 
+                        sx={{ 
+                          height: '100%',
+                          borderColor: userType === 'consultant' ? theme.palette.primary.main : 'divider',
+                          bgcolor: userType === 'consultant' ? 'rgba(25, 118, 210, 0.04)' : 'transparent',
+                          borderRadius: 2
+                        }}
+                      >
+                        <CardContent sx={{ p: 2 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <PersonIcon 
+                              sx={{ 
+                                mr: 1, 
+                                color: userType === 'consultant' ? theme.palette.primary.main : 'text.secondary'
+                              }} 
+                            />
+                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                              Consultant Portal
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" color="textSecondary">
+                            For Manhattanville student consultants managing client security assessments
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Card 
+                        variant="outlined" 
+                        sx={{ 
+                          height: '100%',
+                          borderColor: userType === 'client' ? theme.palette.secondary.main : 'divider',
+                          bgcolor: userType === 'client' ? 'rgba(3, 169, 244, 0.04)' : 'transparent',
+                          borderRadius: 2
+                        }}
+                      >
+                        <CardContent sx={{ p: 2 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <BusinessIcon 
+                              sx={{ 
+                                mr: 1, 
+                                color: userType === 'client' ? theme.palette.secondary.main : 'text.secondary'
+                              }} 
+                            />
+                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                              Client Access
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" color="textSecondary">
+                            For businesses to view security assessments and implement recommendations
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  </>
+                ) : (
+                  <Grid item xs={12}>
+                    <Card 
+                      variant="outlined" 
+                      sx={{ 
+                        height: '100%',
+                        borderColor: '#1a237e',
+                        bgcolor: 'rgba(63, 81, 181, 0.04)',
+                        borderRadius: 2
+                      }}
+                    >
+                      <CardContent sx={{ p: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <AdminPanelSettingsIcon 
+                            sx={{ 
+                              mr: 1, 
+                              color: '#1a237e'
+                            }} 
+                          />
+                          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                            Admin Dashboard
+                          </Typography>
+                        </Box>
+                        <Typography variant="body2" color="textSecondary">
+                          System administration panel for managing consultants, clients, and platform settings
                         </Typography>
-                      </Box>
-                      <Typography variant="body2" color="textSecondary">
-                        For Manhattanville student consultants managing client security assessments
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Card 
-                    variant="outlined" 
-                    sx={{ 
-                      height: '100%',
-                      borderColor: userType === 'client' ? theme.palette.secondary.main : 'divider',
-                      bgcolor: userType === 'client' ? 'rgba(3, 169, 244, 0.04)' : 'transparent',
-                      borderRadius: 2
-                    }}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <BusinessIcon 
-                          sx={{ 
-                            mr: 1, 
-                            color: userType === 'client' ? theme.palette.secondary.main : 'text.secondary'
-                          }} 
-                        />
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          Client Access
-                        </Typography>
-                      </Box>
-                      <Typography variant="body2" color="textSecondary">
-                        For businesses to view security assessments and implement recommendations
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )}
               </Grid>
             </Box>
             
@@ -246,10 +305,22 @@ const Login: React.FC = () => {
                 type="email"
                 fullWidth
                 required
-                value={userType === 'client' ? 'client@example.com' : email}
+                value={
+                  userType === 'client' 
+                    ? 'client@example.com' 
+                    : userType === 'admin'
+                      ? 'admin@rocky.edu'
+                      : email
+                }
                 onChange={(e) => setEmail(e.target.value)}
                 sx={{ mb: 3 }}
-                helperText={userType === 'client' ? "Using demo client email for testing" : ""}
+                helperText={
+                  userType === 'client' 
+                    ? "Using demo client email for testing" 
+                    : userType === 'admin'
+                      ? "Using admin email for testing"
+                      : ""
+                }
               />
               
               <TextField
@@ -310,7 +381,9 @@ const Login: React.FC = () => {
                   borderRadius: 2,
                   background: userType === 'consultant' 
                     ? 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)'
-                    : 'linear-gradient(45deg, #03a9f4 30%, #4fc3f7 90%)',
+                    : userType === 'client'
+                      ? 'linear-gradient(45deg, #03a9f4 30%, #4fc3f7 90%)'
+                      : 'linear-gradient(45deg, #1a237e 30%, #3f51b5 90%)',
                 }}
                 disabled={isLoading}
               >
@@ -346,7 +419,9 @@ const Login: React.FC = () => {
               <Typography variant="caption" color="textSecondary">
                 {userType === 'consultant' 
                   ? 'For demo purposes, use: student@manhattanville.edu / password123'
-                  : 'For client demo, use: client@example.com / password123'}
+                  : userType === 'client'
+                    ? 'For client demo, use: client@example.com / password123'
+                    : 'For admin demo, use: admin@rocky.edu / admin123'}
               </Typography>
             </Box>
           </Paper>

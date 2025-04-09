@@ -1,39 +1,40 @@
-import React, { useState, useContext } from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  IconButton, 
-  Typography, 
-  Badge, 
-  Menu, 
-  MenuItem, 
-  Box, 
-  Avatar, 
-  Divider, 
-  ListItemIcon, 
-  Button,
-  useTheme
+import {
+    AppBar,
+    Avatar,
+    Badge,
+    Box,
+    Button,
+    Divider,
+    IconButton,
+    ListItemIcon,
+    Menu,
+    MenuItem,
+    Toolbar,
+    Typography,
+    useTheme
 } from '@mui/material';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../App';
+import { AuthContext } from '../context/AuthContext';
 
 // Icons
-import MenuIcon from '@mui/icons-material/Menu';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import SecurityIcon from '@mui/icons-material/Security';
-import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SchoolIcon from '@mui/icons-material/School';
 import BusinessIcon from '@mui/icons-material/Business';
 import HelpIcon from '@mui/icons-material/Help';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
+import SecurityIcon from '@mui/icons-material/Security';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 interface NavbarProps {
   open?: boolean;
   handleDrawerOpen: () => void;
+  isClient?: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
+const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen, isClient = false }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
@@ -80,7 +81,7 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           marginLeft: open ? 260 : 0,
           width: open ? `calc(100% - 260px)` : '100%',
           backdropFilter: 'blur(10px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backgroundColor: isClient ? 'rgba(244, 247, 254, 0.9)' : 'rgba(255, 255, 255, 0.9)',
           color: theme.palette.text.primary,
         }}
         elevation={2}
@@ -103,6 +104,7 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
             <SecurityIcon sx={{ color: theme.palette.primary.main, fontSize: 28, mr: 1.5 }} />
             <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
               ROCKY <span style={{ color: theme.palette.secondary.main }}>SECURITY</span>
+              {isClient && <span style={{ fontWeight: 400, marginLeft: 8 }}>Client Portal</span>}
             </Typography>
             
             {/* Manhattanville University branding */}
@@ -129,17 +131,19 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
           <Box sx={{ flexGrow: 1 }} />
           
           <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
-            <Button 
-              variant="contained" 
-              color="primary"
-              startIcon={<BusinessIcon />}
-              sx={{ 
-                borderRadius: 2, 
-                textTransform: 'none',
-              }}
-            >
-              Client Portal
-            </Button>
+            {!isClient && (
+              <Button 
+                variant="contained" 
+                color="primary"
+                startIcon={<BusinessIcon />}
+                sx={{ 
+                  borderRadius: 2, 
+                  textTransform: 'none',
+                }}
+              >
+                Client Portal
+              </Button>
+            )}
             
             <Button 
               variant="outlined" 
@@ -167,7 +171,9 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
               color="inherit"
               sx={{ ml: 1 }}
             >
-              <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 36, height: 36 }}>JS</Avatar>
+              <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 36, height: 36 }}>
+                {isClient ? 'HD' : 'JS'}
+              </Avatar>
             </IconButton>
           </Box>
         </Toolbar>
@@ -195,8 +201,12 @@ const Navbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>John Smith</Typography>
-          <Typography variant="body2" color="textSecondary">Student Consultant</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            {isClient ? 'Harbor Dental' : 'John Smith'}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            {isClient ? 'Client Account' : 'Student Consultant'}
+          </Typography>
         </Box>
         
         <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />

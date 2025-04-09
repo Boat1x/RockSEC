@@ -1,41 +1,43 @@
+import {
+    Avatar,
+    Badge,
+    Box,
+    Collapse,
+    Divider,
+    Drawer,
+    IconButton,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    ListSubheader,
+    Typography,
+    useTheme
+} from '@mui/material';
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  IconButton,
-  Divider,
-  Box,
-  ListSubheader,
-  Collapse,
-  Badge,
-  Avatar,
-  useTheme
-} from '@mui/material';
 
 // Icons
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import BusinessIcon from '@mui/icons-material/Business';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import HistoryIcon from '@mui/icons-material/History';
-import BusinessIcon from '@mui/icons-material/Business';
-import SchoolIcon from '@mui/icons-material/School';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import PeopleIcon from '@mui/icons-material/People';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import LogoutIcon from '@mui/icons-material/Logout';
-import WarningIcon from '@mui/icons-material/Warning';
 import GroupIcon from '@mui/icons-material/Group';
+import HistoryIcon from '@mui/icons-material/History';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PeopleIcon from '@mui/icons-material/People';
+import SchoolIcon from '@mui/icons-material/School';
 import SecurityIcon from '@mui/icons-material/Security';
+import SettingsIcon from '@mui/icons-material/Settings';
+import WarningIcon from '@mui/icons-material/Warning';
 
 interface SidebarProps {
   open: boolean;
   handleDrawerClose: () => void;
+  isClient?: boolean;
 }
 
 interface NavItem {
@@ -46,7 +48,7 @@ interface NavItem {
   badge?: number;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, isClient = false }) => {
   const [clientsOpen, setClientsOpen] = useState<boolean>(false);
   const location = useLocation();
   const theme = useTheme();
@@ -55,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
     setClientsOpen(!clientsOpen);
   };
   
-  // Navigation items
+  // Navigation items for consultants
   const mainNavItems: NavItem[] = [
     { 
       path: '/', 
@@ -81,6 +83,40 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
       icon: <PeopleIcon />,
       isActive: location.pathname === '/consultant',
       badge: 5
+    },
+  ];
+  
+  // Navigation items for clients
+  const clientNavItems: NavItem[] = [
+    { 
+      path: '/', 
+      name: 'Dashboard', 
+      icon: <DashboardIcon />,
+      isActive: location.pathname === '/' 
+    },
+    { 
+      path: '/assessment', 
+      name: 'Security Assessment', 
+      icon: <AssessmentIcon />,
+      isActive: location.pathname === '/assessment' 
+    },
+    { 
+      path: '/vulnerabilities', 
+      name: 'Vulnerabilities', 
+      icon: <WarningIcon />,
+      isActive: location.pathname === '/vulnerabilities' 
+    },
+    { 
+      path: '/resources', 
+      name: 'Security Resources', 
+      icon: <SchoolIcon />,
+      isActive: location.pathname === '/resources' 
+    },
+    { 
+      path: '/settings', 
+      name: 'Account Settings', 
+      icon: <SettingsIcon />,
+      isActive: location.pathname === '/settings' 
     },
   ];
   
@@ -129,6 +165,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
   // Style for the drawer
   const drawerWidth = 260;
   
+  // Choose the appropriate navigation items based on user type
+  const navigationItems = isClient ? clientNavItems : mainNavItems;
+  
   return (
     <Drawer
       variant="persistent"
@@ -140,7 +179,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
-          backgroundColor: '#ffffff',
+          backgroundColor: isClient ? '#f8faff' : '#ffffff',
           borderRight: '1px solid rgba(0, 0, 0, 0.08)',
           boxShadow: '4px 0 15px rgba(0, 0, 0, 0.05)',
         },
@@ -184,13 +223,13 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
             backgroundColor: theme.palette.primary.main
           }}
         >
-          JS
+          {isClient ? 'HD' : 'JS'}
         </Avatar>
         <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: 600 }}>
-          John Smith
+          {isClient ? 'Harbor Dental' : 'John Smith'}
         </Typography>
         <Typography variant="body2" color="textSecondary">
-          Student Consultant
+          {isClient ? 'Client Account' : 'Student Consultant'}
         </Typography>
         <Box sx={{ 
           display: 'flex', 
@@ -229,7 +268,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose }) => {
       
       {/* Main navigation */}
       <List>
-        {mainNavItems.map((item) => (
+        {navigationItems.map((item) => (
           <ListItem
             key={item.path}
             component={Link}

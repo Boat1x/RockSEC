@@ -1,24 +1,29 @@
-import React, { useState, useEffect, createContext } from 'react';
-import { createBrowserRouter, RouterProvider, Outlet, Navigate, useLocation } from "react-router-dom";
 import { Box, Typography } from '@mui/material';
-
+import React, { useState } from 'react';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation } from "react-router-dom";
 // Theme Provider
 import ThemeProvider from './ThemeProvider';
 
+// Auth Provider
+import { AuthContext, AuthProvider } from './context/AuthContext';
+
 // Components
+import AdminLayout from "./components/AdminLayout";
 import Navbar from "./components/Navbar";
 import Sidebar from "./pages/Sidebar";
 
 // Pages
-import Dashboard from "./pages/Dashboard"; 
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
+import BusinessAssessment from "./pages/BusinessAssessment";
+import ClientDashboard from "./pages/ClientDashboard";
+import ConsultantDashboard from "./pages/ConsultantDashboard";
+import Dashboard from "./pages/Dashboard";
 import ErrorPage from "./pages/ErrorPage";
 import History from "./pages/History";
-import BusinessAssessment from "./pages/BusinessAssessment";
 import LearningHub from "./pages/LearningHub";
-import ConsultantDashboard from "./pages/ConsultantDashboard";
-import ClientDashboard from "./pages/ClientDashboard";
-import ThreatIntelligence from "./pages/ThreatIntelligence";
 import Login from "./pages/Login";
+import ThreatIntelligence from "./pages/ThreatIntelligence";
 
 // Create a temporary ClientDetail component
 const ClientDetail: React.FC = () => {
@@ -34,63 +39,7 @@ const ClientDetail: React.FC = () => {
   );
 };
 
-// Context
-export const AuthContext = createContext<{
-  isAuthenticated: boolean;
-  userType: 'consultant' | 'client' | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-}>({
-  isAuthenticated: false,
-  userType: null,
-  login: async () => false,
-  logout: () => {},
-});
-
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userType, setUserType] = useState<'consultant' | 'client' | null>(null);
-  
-  // Check if user is logged in when app loads
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const storedUserType = localStorage.getItem('user_type');
-    
-    if (token) {
-      setIsAuthenticated(true);
-      setUserType(storedUserType as 'consultant' | 'client' || 'consultant');
-    }
-  }, []);
-
-  // Login function
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Demo login logic - in a real app this would validate with a backend
-    if (email === 'student@manhattanville.edu' && password === 'password123') {
-      // Store token in localStorage
-      localStorage.setItem('auth_token', 'demo_token');
-      localStorage.setItem('user_type', 'consultant');
-      setIsAuthenticated(true);
-      setUserType('consultant');
-      return true;
-    } else if (email === 'client@example.com' && password === 'password123') {
-      // Client login
-      localStorage.setItem('auth_token', 'client_token');
-      localStorage.setItem('user_type', 'client');
-      setIsAuthenticated(true);
-      setUserType('client');
-      return true;
-    }
-    return false;
-  };
-
-  // Logout function
-  const logout = (): void => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_type');
-    setIsAuthenticated(false);
-    setUserType(null);
-  };
-
   // Router configuration
   const router = createBrowserRouter([
     {
@@ -98,10 +47,34 @@ const App: React.FC = () => {
       element: <Login />,
     },
     {
+      path: "/admin/login",
+      element: <AdminLogin />,
+    },
+    {
+      path: "/admin",
+      element: (
+        <ProtectedRoute adminOnly>
+          <AdminLayout>
+            <Outlet />
+          </AdminLayout>
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          path: "dashboard",
+          element: <AdminDashboard />,
+        },
+        {
+          path: "*",
+          element: <Navigate to="/admin/dashboard" replace />
+        }
+      ]
+    },
+    {
       path: "/",
       element: (
         <ProtectedRoute>
-          {userType === 'client' ? <ClientLayout /> : <ConsultantLayout />}
+          <DynamicLayout />
         </ProtectedRoute>
       ),
       errorElement: <ErrorPage />,
@@ -109,7 +82,7 @@ const App: React.FC = () => {
         // Routes accessible to both consultants and clients
         {
           index: true,
-          element: userType === 'client' ? <ClientDashboard /> : <Dashboard />,
+          element: <DynamicDashboard />,
         },
         {
           path: "/assessment",
@@ -148,24 +121,55 @@ const App: React.FC = () => {
   ]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userType, login, logout }}>
+    <AuthProvider>
       <ThemeProvider>
         <RouterProvider router={router} />
       </ThemeProvider>
-    </AuthContext.Provider>
+    </AuthProvider>
   );
 }
 
 export default App;
 
+// Dynamic dashboard component that renders different dashboards based on user type
+const DynamicDashboard: React.FC = () => {
+  const { userType } = React.useContext(AuthContext);
+  
+  if (userType === 'client') {
+    return <ClientDashboard />;
+  } else if (userType === 'admin') {
+    return <Navigate to="/admin/dashboard" />;
+  } else {
+    return <Dashboard />;
+  }
+};
+
+// Dynamic layout component that renders different layouts based on user type
+const DynamicLayout: React.FC = () => {
+  const { userType } = React.useContext(AuthContext);
+  
+  if (userType === 'client') {
+    return <ClientLayout />;
+  } else if (userType === 'admin') {
+    return <Navigate to="/admin/dashboard" />;
+  } else {
+    return <ConsultantLayout />;
+  }
+};
+
 // Auth-protected route component
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = React.useContext(AuthContext);
+const ProtectedRoute: React.FC<{ children: React.ReactNode, adminOnly?: boolean }> = ({ children, adminOnly }) => {
+  const { isAuthenticated, userType } = React.useContext(AuthContext);
   const location = useLocation();
 
   if (!isAuthenticated) {
     // Redirect to login and save the location they were trying to access
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={adminOnly ? "/admin/login" : "/login"} state={{ from: location }} replace />;
+  }
+
+  // For admin routes, verify the user is an admin
+  if (adminOnly && userType !== 'admin') {
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
@@ -201,9 +205,9 @@ const ConsultantLayout: React.FC = () => {
   );
 };
 
-// Layout component with simplified navbar for clients
+// Layout component for client users
 const ClientLayout: React.FC = () => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
   
   const handleDrawerOpen = (): void => {
     setOpen(true);
@@ -215,9 +219,12 @@ const ClientLayout: React.FC = () => {
   
   return (
     <>
-      <Navbar open={open} handleDrawerOpen={handleDrawerOpen} />
+      <Navbar open={open} handleDrawerOpen={handleDrawerOpen} isClient={true} />
+      <Sidebar open={open} handleDrawerClose={handleDrawerClose} isClient={true} />
       <div style={{ 
+        paddingLeft: open ? '260px' : '0',
         paddingTop: '64px',
+        transition: 'padding-left 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms',
         width: '100%',
         minHeight: '100vh',
         backgroundColor: '#f5f7fa',
@@ -226,4 +233,4 @@ const ClientLayout: React.FC = () => {
       </div>
     </>
   );
-};
+}; 
