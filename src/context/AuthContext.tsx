@@ -1,8 +1,8 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  userType: 'consultant' | 'client' | null;
+  userType: 'consultant' | 'client' | 'admin' | null;
   user: UserData | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -12,7 +12,7 @@ interface UserData {
   id: string;
   name: string;
   email: string;
-  role: 'consultant' | 'client';
+  role: 'consultant' | 'client' | 'admin';
   avatar?: string;
 }
 
@@ -31,7 +31,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userType, setUserType] = useState<'consultant' | 'client' | null>(null);
+  const [userType, setUserType] = useState<'consultant' | 'client' | 'admin' | null>(null);
   const [user, setUser] = useState<UserData | null>(null);
 
   // Check if user is logged in when the app loads
@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     if (token && storedUserType) {
       setIsAuthenticated(true);
-      setUserType(storedUserType as 'consultant' | 'client');
+      setUserType(storedUserType as 'consultant' | 'client' | 'admin');
       
       if (userData) {
         setUser(JSON.parse(userData));
@@ -53,7 +53,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
     // Demo login logic - in a real app, this would validate with a backend
-    if (email === 'student@manhattanville.edu' && password === 'password123') {
+    if (email === 'admin@rocky.edu' && password === 'password123') {
+      // Create mock user data for admin
+      const userData: UserData = {
+        id: 'a-1',
+        name: 'Admin User',
+        email: 'admin@rocky.edu',
+        role: 'admin',
+      };
+      
+      // Store user data and token in localStorage
+      localStorage.setItem('auth_token', 'admin_token');
+      localStorage.setItem('user_type', 'admin');
+      localStorage.setItem('user_data', JSON.stringify(userData));
+      
+      setIsAuthenticated(true);
+      setUserType('admin');
+      setUser(userData);
+      
+      return true;
+    } else if (email === 'student@manhattanville.edu' && password === 'password123') {
       // Create mock user data for consultant
       const userData: UserData = {
         id: 'c-1',

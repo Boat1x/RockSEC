@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
-import { createBrowserRouter, RouterProvider, Outlet, Navigate, useLocation } from "react-router-dom";
 import { Box } from '@mui/material';
+import React, { useState } from 'react';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation } from "react-router-dom";
 
 // Theme Provider
 import ThemeProvider from './ThemeProvider';
 
 // Context
-import { AuthProvider, AuthContext } from './context/AuthContext';
+import { AuthContext, AuthProvider } from './context/AuthContext';
 
 // Components
+import AdminLayout from "./components/AdminLayout";
 import ConsultantNavbar from "./components/ConsultantNavbar";
 import ConsultantSidebar from "./components/ConsultantSidebar";
 
 // Pages
-import Dashboard from "./pages/Dashboard"; 
+import AdminDashboard from "./pages/AdminDashboard";
+import BusinessAssessment from "./pages/BusinessAssessment";
+import ConsultantDashboard from "./pages/ConsultantDashboard";
+import Dashboard from "./pages/Dashboard";
 import ErrorPage from "./pages/ErrorPage";
 import History from "./pages/History";
-import BusinessAssessment from "./pages/BusinessAssessment";
 import LearningHub from "./pages/LearningHub";
-import ConsultantDashboard from "./pages/ConsultantDashboard";
-import ClientDashboard from "./pages/ClientDashboard";
-import ThreatIntelligence from "./pages/ThreatIntelligence";
 import Login from "./pages/Login";
+import ThreatIntelligence from "./pages/ThreatIntelligence";
 
 // Create a temporary ClientDetail component
 const ClientDetail: React.FC = () => {
@@ -42,6 +43,26 @@ const App: React.FC = () => {
           <Login />
         </AuthWrapper>
       ),
+    },
+    {
+      path: "/admin",
+      element: (
+        <ProtectedRoute adminOnly>
+          <AdminLayout>
+            <Outlet />
+          </AdminLayout>
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          path: "dashboard",
+          element: <AdminDashboard />,
+        },
+        {
+          path: "*",
+          element: <Navigate to="/admin/dashboard" replace />
+        }
+      ]
     },
     {
       path: "/",
@@ -98,13 +119,18 @@ const App: React.FC = () => {
 }
 
 // Auth-protected route component
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = React.useContext(AuthContext);
+const ProtectedRoute: React.FC<{ children: React.ReactNode, adminOnly?: boolean }> = ({ children, adminOnly }) => {
+  const { isAuthenticated, userType } = React.useContext(AuthContext);
   const location = useLocation();
 
   if (!isAuthenticated) {
     // Redirect to login and save the location they were trying to access
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // For admin routes, verify the user is an admin
+  if (adminOnly && userType !== 'admin') {
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;

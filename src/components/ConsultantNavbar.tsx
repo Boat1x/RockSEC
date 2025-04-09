@@ -1,32 +1,32 @@
-import React, { useState, useContext } from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  IconButton, 
-  Typography, 
-  Badge, 
-  Menu, 
-  MenuItem, 
-  Box, 
-  Avatar, 
-  Divider, 
-  ListItemIcon, 
-  Button,
-  useTheme
+import {
+    AppBar,
+    Avatar,
+    Badge,
+    Box,
+    Button,
+    Divider,
+    IconButton,
+    ListItemIcon,
+    Menu,
+    MenuItem,
+    Toolbar,
+    Typography,
+    useTheme
 } from '@mui/material';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 // Icons
-import MenuIcon from '@mui/icons-material/Menu';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import SecurityIcon from '@mui/icons-material/Security';
-import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SchoolIcon from '@mui/icons-material/School';
 import BusinessIcon from '@mui/icons-material/Business';
 import HelpIcon from '@mui/icons-material/Help';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
+import SecurityIcon from '@mui/icons-material/Security';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 interface NavbarProps {
   open?: boolean;
@@ -270,7 +270,7 @@ const ConsultantNavbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpe
           </Typography>
         </Box>
         
-        <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)' }} />
+        <Divider />
         
         {notifications.map((notification) => (
           <MenuItem key={notification.id} onClick={handleMenuClose} sx={{ py: 1.5, px: 2 }}>
@@ -278,7 +278,7 @@ const ConsultantNavbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpe
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 0.5 }}>
                 {notification.isNew && (
                   <Box 
-                    component="span" 
+                    component="span"
                     sx={{ 
                       width: 8, 
                       height: 8, 
@@ -310,7 +310,7 @@ const ConsultantNavbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpe
           </MenuItem>
         ))}
         
-        <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)' }} />
+        <Divider />
         
         <Box sx={{ p: 1.5, textAlign: 'center' }}>
           <Typography 
@@ -326,7 +326,7 @@ const ConsultantNavbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpe
               '&:hover': { textDecoration: 'underline' }
             }}
           >
-            View all notifications
+            View All Notifications
           </Typography>
         </Box>
       </Menu>
@@ -334,4 +334,4 @@ const ConsultantNavbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpe
   );
 };
 
-export default ConsultantNavbar;
+export default ConsultantNavbar; 
