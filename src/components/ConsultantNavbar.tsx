@@ -1,38 +1,39 @@
-import {
-    AppBar,
-    Avatar,
-    Badge,
-    Box,
-    Button,
-    Divider,
-    IconButton,
-    ListItemIcon,
-    Menu,
-    MenuItem,
-    Toolbar,
-    Typography,
-    useTheme
+import React, { useState, useContext } from 'react';
+import { 
+  AppBar, 
+  Toolbar, 
+  IconButton, 
+  Typography, 
+  Badge, 
+  Menu, 
+  MenuItem, 
+  Box, 
+  Avatar, 
+  Divider, 
+  ListItemIcon, 
+  Button,
+  useTheme
 } from '@mui/material';
-import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 // Icons
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import BusinessIcon from '@mui/icons-material/Business';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import HelpIcon from '@mui/icons-material/Help';
-import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import PersonIcon from '@mui/icons-material/Person';
 import SecurityIcon from '@mui/icons-material/Security';
+import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
+import SchoolIcon from '@mui/icons-material/School';
+import BusinessIcon from '@mui/icons-material/Business';
+import HelpIcon from '@mui/icons-material/Help';
 
-interface ClientNavbarProps {
-  companyName?: string;
+interface NavbarProps {
+  open?: boolean;
+  handleDrawerOpen: () => void;
 }
 
-const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Dental Group" }) => {
+const ConsultantNavbar: React.FC<NavbarProps> = ({ open = false, handleDrawerOpen }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
@@ -60,9 +61,10 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
 
   // Notifications data
   const notifications = [
-    { id: 1, message: "New security assessment completed", time: "2 days ago", isNew: true },
-    { id: 2, message: "Security awareness training scheduled", time: "5 days ago", isNew: true },
-    { id: 3, message: "Recommendation implemented: Multi-Factor Authentication", time: "1 week ago", isNew: false },
+    { id: 1, message: "Critical vulnerability detected in system #247", time: "5 minutes ago", isNew: true },
+    { id: 2, message: "Phishing attempt blocked on user account", time: "20 minutes ago", isNew: true },
+    { id: 3, message: "Weekly security report available", time: "1 hour ago", isNew: false },
+    { id: 4, message: "Software update available for endpoint protection", time: "3 hours ago", isNew: false },
   ];
   
   return (
@@ -71,6 +73,12 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
         position="fixed"
         sx={{
           zIndex: theme.zIndex.drawer + 1,
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+          marginLeft: open ? 260 : 0,
+          width: open ? `calc(100% - 260px)` : '100%',
           backdropFilter: 'blur(10px)',
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
           color: theme.palette.text.primary,
@@ -78,64 +86,75 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
         elevation={2}
       >
         <Toolbar sx={{ pr: '24px' }}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="Open drawer"
+            onClick={handleDrawerOpen}
+            sx={{
+              marginRight: '36px',
+              ...(open && { display: 'none' }),
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+          
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <SecurityIcon sx={{ color: theme.palette.primary.main, fontSize: 28, mr: 1.5 }} />
             <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
               ROCKY <span style={{ color: theme.palette.secondary.main }}>SECURITY</span>
             </Typography>
             
-            <Divider orientation="vertical" flexItem sx={{ mx: 2, height: 24 }} />
-            
+            {/* Manhattanville University branding */}
             <Box 
+              component="span" 
               sx={{ 
-                display: 'flex', 
+                ml: 2, 
+                px: 1.5, 
+                py: 0.5, 
+                backgroundColor: 'rgba(25, 118, 210, 0.08)', 
+                borderRadius: 1,
+                display: { xs: 'none', md: 'flex' },
                 alignItems: 'center',
+                border: '1px solid rgba(25, 118, 210, 0.2)'
               }}
             >
-              <BusinessIcon sx={{ fontSize: 18, mr: 1, color: 'text.secondary' }} />
-              <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
-                {companyName}
+              <SchoolIcon sx={{ fontSize: 16, mr: 0.5, color: theme.palette.primary.main }} />
+              <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                Manhattanville University
               </Typography>
             </Box>
           </Box>
           
           <Box sx={{ flexGrow: 1 }} />
           
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
             <Button 
+              variant="contained" 
+              color="primary"
+              startIcon={<BusinessIcon />}
               component={Link}
-              to="/"
-              startIcon={<DashboardIcon />}
+              to="/clients"
               sx={{ 
                 borderRadius: 2, 
                 textTransform: 'none',
               }}
             >
-              Dashboard
+              Client Portal
             </Button>
             
             <Button 
-              component={Link}
-              to="/assessment"
-              startIcon={<AssessmentIcon />}
-              sx={{ 
-                borderRadius: 2, 
-                textTransform: 'none',
-              }}
-            >
-              Assessments
-            </Button>
-            
-            <Button 
+              variant="outlined" 
+              color="secondary"
+              startIcon={<HelpIcon />}
               component={Link}
               to="/learning"
-              startIcon={<HelpIcon />}
               sx={{ 
                 borderRadius: 2, 
                 textTransform: 'none',
               }}
             >
-              Resources
+              Learn Security
             </Button>
           </Box>
           
@@ -152,7 +171,7 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
               color="inherit"
               sx={{ ml: 1 }}
             >
-              <Avatar sx={{ bgcolor: theme.palette.secondary.main, width: 36, height: 36 }}>HD</Avatar>
+              <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 36, height: 36 }}>JS</Avatar>
             </IconButton>
           </Box>
         </Toolbar>
@@ -180,36 +199,36 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{companyName}</Typography>
-          <Typography variant="body2" color="textSecondary">Client Account</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>John Smith</Typography>
+          <Typography variant="body2" color="textSecondary">Student Consultant</Typography>
         </Box>
         
         <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
         
-        <MenuItem sx={{ py: 1.5 }}>
+        <MenuItem component={Link} to="/profile" onClick={handleMenuClose} sx={{ py: 1.5 }}>
           <ListItemIcon>
             <PersonIcon fontSize="small" sx={{ color: theme.palette.primary.main }} />
           </ListItemIcon>
-          <Typography variant="body2">Account Settings</Typography>
+          <Typography variant="body2">My Profile</Typography>
         </MenuItem>
         
-        <MenuItem sx={{ py: 1.5 }}>
+        <MenuItem component={Link} to="/clients" onClick={handleMenuClose} sx={{ py: 1.5 }}>
           <ListItemIcon>
             <BusinessIcon fontSize="small" sx={{ color: theme.palette.secondary.main }} />
           </ListItemIcon>
-          <Typography variant="body2">Company Profile</Typography>
+          <Typography variant="body2">My Clients</Typography>
         </MenuItem>
         
-        <MenuItem sx={{ py: 1.5 }}>
+        <MenuItem component={Link} to="/settings" onClick={handleMenuClose} sx={{ py: 1.5 }}>
           <ListItemIcon>
             <SettingsIcon fontSize="small" />
           </ListItemIcon>
-          <Typography variant="body2">Preferences</Typography>
+          <Typography variant="body2">Settings</Typography>
         </MenuItem>
         
         <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
         
-        <MenuItem sx={{ py: 1.5 }} onClick={handleLogout}>
+        <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" color="error" />
           </ListItemIcon>
@@ -241,7 +260,12 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
       >
         <Box sx={{ px: 2, py: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Notifications</Typography>
-          <Typography variant="caption" color="primary" sx={{ cursor: 'pointer', fontWeight: 500 }}>
+          <Typography 
+            variant="caption" 
+            color="primary" 
+            sx={{ cursor: 'pointer', fontWeight: 500 }}
+            onClick={handleMenuClose}
+          >
             Mark all as read
           </Typography>
         </Box>
@@ -249,7 +273,7 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
         <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)' }} />
         
         {notifications.map((notification) => (
-          <MenuItem key={notification.id} sx={{ py: 1.5, px: 2 }}>
+          <MenuItem key={notification.id} onClick={handleMenuClose} sx={{ py: 1.5, px: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 0.5 }}>
                 {notification.isNew && (
@@ -291,9 +315,10 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
         <Box sx={{ p: 1.5, textAlign: 'center' }}>
           <Typography 
             component={Link} 
-            to="/"
+            to="/notifications"
             variant="body2" 
             color="primary"
+            onClick={handleMenuClose}
             sx={{ 
               cursor: 'pointer', 
               fontWeight: 500,
@@ -309,4 +334,4 @@ const ClientNavbar: React.FC<ClientNavbarProps> = ({ companyName = "Harbor Denta
   );
 };
 
-export default ClientNavbar;
+export default ConsultantNavbar;

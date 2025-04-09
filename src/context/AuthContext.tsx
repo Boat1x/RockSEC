@@ -1,65 +1,59 @@
-import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
-// Define user data type
-export interface UserData {
+interface AuthContextType {
+  isAuthenticated: boolean;
+  userType: 'consultant' | 'client' | null;
+  user: UserData | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
+}
+
+interface UserData {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: 'consultant' | 'client';
+  avatar?: string;
 }
 
-// Define context type
-interface AuthContextType {
-  isAuthenticated: boolean;
-  userType: string | null;
-  user: UserData | null;
-  login: (email: string, password: string, type?: 'consultant' | 'client' | 'admin') => Promise<boolean>;
-  logout: () => void;
-  checkAuth: () => void;
-}
-
-// Create context with default values
+// Create the context with default values
 export const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   userType: null,
   user: null,
   login: async () => false,
   logout: () => {},
-  checkAuth: () => {},
 });
 
 interface AuthProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userType, setUserType] = useState<string | null>(null);
+  const [userType, setUserType] = useState<'consultant' | 'client' | null>(null);
   const [user, setUser] = useState<UserData | null>(null);
 
-// Login function
-const login = async (email: string, password: string, type?: 'consultant' | 'client' | 'admin'): Promise<boolean> => {
-    // Demo login logic - in a real app, this would validate with a backend
-    if ((type === 'admin' || !type) && email === 'admin@rocky.edu' && password === 'admin123') {
-      // Create mock user data for admin
-      const userData: UserData = {
-        id: 'a-1',
-        name: 'Admin User',
-        email: 'admin@rocky.edu',
-        role: 'admin',
-      };
-      
-      // Store user data and token in localStorage
-      localStorage.setItem('auth_token', 'admin_token');
-      localStorage.setItem('user_type', 'admin');
-      localStorage.setItem('user_data', JSON.stringify(userData));
-      
+  // Check if user is logged in when the app loads
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    const storedUserType = localStorage.getItem('user_type');
+    const userData = localStorage.getItem('user_data');
+    
+    if (token && storedUserType) {
       setIsAuthenticated(true);
-      setUserType('admin');
-      setUser(userData);
+      setUserType(storedUserType as 'consultant' | 'client');
       
-      return true;
-    } else if ((type === 'consultant' || !type) && email === 'student@manhattanville.edu' && password === 'password123') {
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    }
+  }, []);
+
+  // Login function
+  const login = async (email: string, password: string): Promise<boolean> => {
+    // Demo login logic - in a real app, this would validate with a backend
+    if (email === 'student@manhattanville.edu' && password === 'password123') {
       // Create mock user data for consultant
       const userData: UserData = {
         id: 'c-1',
@@ -78,7 +72,7 @@ const login = async (email: string, password: string, type?: 'consultant' | 'cli
       setUser(userData);
       
       return true;
-    } else if ((type === 'client' || !type) && email === 'client@example.com' && password === 'password123') {
+    } else if (email === 'client@example.com' && password === 'password123') {
       // Create mock user data for client
       const userData: UserData = {
         id: 'cl-1',
@@ -103,7 +97,7 @@ const login = async (email: string, password: string, type?: 'consultant' | 'cli
   };
 
   // Logout function
-  const logout = () => {
+  const logout = (): void => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_type');
     localStorage.removeItem('user_data');
@@ -112,28 +106,12 @@ const login = async (email: string, password: string, type?: 'consultant' | 'cli
     setUserType(null);
     setUser(null);
   };
-
-  // Check if user is already authenticated
-  const checkAuth = () => {
-    const token = localStorage.getItem('auth_token');
-    const storedUserType = localStorage.getItem('user_type');
-    const storedUserData = localStorage.getItem('user_data');
-    
-    if (token && storedUserType && storedUserData) {
-      setIsAuthenticated(true);
-      setUserType(storedUserType);
-      setUser(JSON.parse(storedUserData));
-    }
-  };
-
-  // Check auth on component mount
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
+  
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userType, user, login, logout, checkAuth }}>
+    <AuthContext.Provider value={{ isAuthenticated, userType, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;

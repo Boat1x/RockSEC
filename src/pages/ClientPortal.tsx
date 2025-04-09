@@ -1,9 +1,9 @@
-// src/pages/ClientDashboard.tsx
 import React from 'react';
 import ClientDashboardLayout from './ClientDashboardLayout';
 import EnhancedDashboard from './EnhancedDashboard';
 
-const ClientDashboard: React.FC = () => {
+
+const ClientPortal: React.FC = () => {
   return (
     <ClientDashboardLayout>
       <EnhancedDashboard />
@@ -11,4 +11,4 @@ const ClientDashboard: React.FC = () => {
   );
 };
 
-export default ClientDashboard;
+export default ClientPortal;
