@@ -10,8 +10,11 @@ const schema = a.schema({
   Todo: a
     .model({
       content: a.string(),
+      isDone: a.boolean(),
+      priority: a.string(),
+      createdAt: a.datetime(),
     })
-    .authorization((allow) => [allow.publicApiKey()]), // Added authorization rule here
+    .authorization((allow) => [allow.publicApiKey()]),
 
   Test: a
     .model({

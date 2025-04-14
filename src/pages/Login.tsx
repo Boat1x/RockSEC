@@ -53,15 +53,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Use predefined emails based on user type selection
-      let emailToUse = email;
-      if (userType === 'client') {
-        emailToUse = 'client@example.com';
-      } else if (userType === 'admin') {
-        emailToUse = 'admin@rocky.edu';
-      }
-      
-      const success = await login(emailToUse, password);
+      const success = await login(email, password);
       if (success) {
         // Navigate to the appropriate page based on user type
         if (userType === 'admin') {
@@ -272,21 +264,14 @@ const Login: React.FC = () => {
                 type="email"
                 fullWidth
                 required
-                value={
-                  userType === 'client' 
-                    ? 'client@example.com' 
-                    : userType === 'admin'
-                      ? 'admin@rocky.edu'
-                      : email
-                }
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 sx={{ mb: 3 }}
                 helperText={
                   userType === 'client' || userType === 'admin'
-                    ? `Using demo ${userType} email for testing`
+                    ? `Suggested: ${userType === 'client' ? 'client@example.com' : 'admin@rocky.edu'}`
                     : ""
                 }
-                disabled={userType === 'client' || userType === 'admin'}
               />
               
               <TextField
