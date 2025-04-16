@@ -24,6 +24,15 @@ import LearningHub from "./pages/LearningHub";
 import Login from "./pages/Login";
 import ThreatIntelligence from "./pages/ThreatIntelligence";
 
+// Admin pages
+import AdminClients from "./pages/admin/AdminClients";
+import AdminConsultants from "./pages/admin/AdminConsultants";
+import AdminLogs from "./pages/admin/AdminLogs";
+import AdminPrograms from "./pages/admin/AdminPrograms";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminSecurity from "./pages/admin/AdminSecurity";
+import AdminUsers from "./pages/admin/AdminUsers";
+
 // Create a temporary ClientDetail component
 const ClientDetail: React.FC = () => {
   return (
@@ -57,6 +66,34 @@ const App: React.FC = () => {
         {
           path: "dashboard",
           element: <AdminDashboard />,
+        },
+        {
+          path: "consultants",
+          element: <AdminConsultants />,
+        },
+        {
+          path: "clients",
+          element: <AdminClients />,
+        },
+        {
+          path: "reports",
+          element: <AdminReports />,
+        },
+        {
+          path: "users",
+          element: <AdminUsers />,
+        },
+        {
+          path: "programs",
+          element: <AdminPrograms />,
+        },
+        {
+          path: "logs",
+          element: <AdminLogs />,
+        },
+        {
+          path: "security",
+          element: <AdminSecurity />,
         },
         {
           path: "*",
