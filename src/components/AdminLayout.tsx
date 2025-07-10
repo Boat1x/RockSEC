@@ -16,9 +16,12 @@ import {
     MenuItem,
     Toolbar,
     Typography,
-    useTheme
+    useTheme,
+    alpha,
+    useMediaQuery,
+    Tooltip
 } from '@mui/material';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
@@ -37,6 +40,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import PolicyIcon from '@mui/icons-material/Policy';
 import SchoolIcon from '@mui/icons-material/School';
 import SettingsIcon from '@mui/icons-material/Settings';
+import SecurityIcon from '@mui/icons-material/Security';
+import ShieldIcon from '@mui/icons-material/Shield';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -159,11 +165,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           }),
           marginLeft: open ? drawerWidth : 0,
           width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
-          backgroundColor: '#1a237e', // Darker blue for admin
+          background: 'linear-gradient(135deg, #0f2027 0%, #203a43 100%)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
         }}
-        elevation={2}
+        elevation={0}
       >
-        <Toolbar sx={{ pr: '24px' }}>
+        <Toolbar sx={{ pr: '24px', minHeight: '70px' }}>
           <IconButton
             edge="start"
             color="inherit"
@@ -178,9 +185,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </IconButton>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <AdminPanelSettingsIcon sx={{ color: '#fff', fontSize: 28, mr: 1.5 }} />
-            <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
-              ROCKY SECURITY <span style={{ fontWeight: 400 }}>Admin</span>
+            <SecurityIcon sx={{ color: '#fff', fontSize: 32, mr: 2, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+            <Typography variant="h5" noWrap sx={{ fontWeight: 700, letterSpacing: '0.5px', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+              ROCKY <span style={{ color: '#4fc3f7', fontWeight: 700 }}>SECURITY</span>
             </Typography>
             
             {/* University branding */}
@@ -188,16 +195,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               component="span" 
               sx={{ 
                 ml: 2, 
-                px: 1.5, 
-                py: 0.5, 
-                backgroundColor: 'rgba(255, 255, 255, 0.15)', 
-                borderRadius: 1,
+                px: 2, 
+                py: 0.75, 
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)', 
+                borderRadius: 2,
                 display: { xs: 'none', md: 'flex' },
                 alignItems: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                border: '1px solid rgba(255,255,255,0.1)'
               }}
             >
-              <SchoolIcon sx={{ fontSize: 16, mr: 0.5, color: '#fff' }} />
-              <Typography variant="caption" sx={{ fontWeight: 500, color: '#fff' }}>
+              <SchoolIcon sx={{ fontSize: 18, mr: 1, color: '#4fc3f7' }} />
+              <Typography variant="caption" sx={{ fontWeight: 600, color: '#fff', letterSpacing: '0.5px' }}>
                 Manhattanville University
               </Typography>
             </Box>
@@ -206,22 +215,61 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <Box sx={{ flexGrow: 1 }} />
           
           <Box sx={{ display: 'flex', ml: 2 }}>
-            <IconButton color="inherit" onClick={handleNotificationsMenuOpen}>
-              <Badge badgeContent={2} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+            <Tooltip title="Notifications">
+              <IconButton 
+                color="inherit" 
+                onClick={handleNotificationsMenuOpen}
+                sx={{
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.2)'
+                  },
+                  mr: 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <Badge 
+                  badgeContent={2} 
+                  color="error"
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      backgroundColor: '#ff5252',
+                      boxShadow: '0 2px 5px rgba(255,82,82,0.5)'
+                    }
+                  }}
+                >
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+            </Tooltip>
             
-            <IconButton 
-              edge="end"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-              sx={{ ml: 1 }}
-            >
-              <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', width: 36, height: 36 }}>
-                <AdminPanelSettingsIcon />
-              </Avatar>
-            </IconButton>
+            <Tooltip title="Account">
+              <IconButton 
+                edge="end"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+                sx={{ 
+                  ml: 1,
+                  p: 0.5,
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    border: '2px solid rgba(255,255,255,0.4)'
+                  }
+                }}
+              >
+                <Avatar 
+                  sx={{ 
+                    bgcolor: 'rgba(255, 255, 255, 0.1)', 
+                    width: 38, 
+                    height: 38,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 700, color: '#fff' }}>JS</Typography>
+                </Avatar>
+              </IconButton>
+            </Tooltip>
           </Box>
         </Toolbar>
       </AppBar>
@@ -238,7 +286,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             boxSizing: 'border-box',
             backgroundColor: '#ffffff',
             borderRight: '1px solid rgba(0, 0, 0, 0.08)',
-            boxShadow: '4px 0 15px rgba(0, 0, 0, 0.05)',
+            boxShadow: '4px 0 20px rgba(0, 0, 0, 0.08)',
+            overflowX: 'hidden'
           },
         }}
       >
@@ -248,14 +297,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             alignItems: 'center',
             justifyContent: 'flex-end',
             px: [1],
-            backgroundColor: '#1a237e', // Match AppBar color
+            background: 'linear-gradient(135deg, #0f2027 0%, #203a43 100%)',
             color: '#fff',
+            minHeight: '70px'
           }}
         >
-          <Typography variant="subtitle1" sx={{ flexGrow: 1, fontWeight: 600, pl: 1 }}>
-            Admin Panel
+          <Typography variant="subtitle1" sx={{ flexGrow: 1, fontWeight: 700, pl: 2, letterSpacing: '0.5px' }}>
+            Security Console
           </Typography>
-          <IconButton onClick={handleDrawerClose} sx={{ color: '#fff' }}>
+          <IconButton 
+            onClick={handleDrawerClose} 
+            sx={{ 
+              color: '#fff',
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              '&:hover': {
+                backgroundColor: 'rgba(255,255,255,0.2)'
+              },
+            }}
+          >
             <ChevronLeftIcon />
           </IconButton>
         </Toolbar>
@@ -263,38 +322,55 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <Divider />
         
         {/* Admin Profile */}
-        <Box sx={{ p: 2, textAlign: 'center' }}>
+        <Box sx={{ p: 3, textAlign: 'center', mt: 1 }}>
           <Avatar
             sx={{ 
-              width: 64, 
-              height: 64, 
+              width: 80, 
+              height: 80, 
               margin: '0 auto',
-              backgroundColor: '#1a237e'
+              background: 'linear-gradient(135deg, #0f2027 0%, #203a43 100%)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              border: '3px solid rgba(79, 195, 247, 0.5)'
             }}
           >
-            <AdminPanelSettingsIcon sx={{ fontSize: 36 }} />
+            <Typography sx={{ fontSize: 28, fontWeight: 700, color: '#fff' }}>JS</Typography>
           </Avatar>
-          <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: 600 }}>
-            Admin User
+          <Typography variant="h6" sx={{ mt: 2, fontWeight: 700, color: '#203a43' }}>
+            John Smith
           </Typography>
-          <Typography variant="body2" color="textSecondary">
-            System Administrator
-          </Typography>
+          <Box 
+            sx={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              backgroundColor: 'rgba(79, 195, 247, 0.1)', 
+              px: 1.5, 
+              py: 0.5, 
+              borderRadius: 2,
+              mt: 0.5
+            }}
+          >
+            <ShieldIcon sx={{ fontSize: 16, mr: 0.5, color: '#4fc3f7' }} />
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#203a43' }}>
+              Student Consultant
+            </Typography>
+          </Box>
         </Box>
         
-        <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)', mt: 2 }} />
+        <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)', mx: 2 }} />
         
         {/* Main Navigation */}
-        <List sx={{ px: 2, pt: 2 }}>
+        <List sx={{ px: 2, pt: 3 }}>
           <Typography 
             variant="overline" 
             sx={{ 
               pl: 2, 
-              color: 'rgba(0, 0, 0, 0.6)', 
-              fontWeight: 600 
+              color: '#203a43', 
+              fontWeight: 700,
+              letterSpacing: '1px',
+              fontSize: '0.75rem'
             }}
           >
-            Management
+            MANAGEMENT
           </Typography>
           
           {mainNavItems.map((item) => (
@@ -307,21 +383,27 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             >
               <ListItemButton
                 sx={{
-                  minHeight: 48,
+                  minHeight: 52,
                   px: 2.5,
-                  borderRadius: 1,
-                  backgroundColor: item.isActive ? 'rgba(26, 35, 126, 0.08)' : 'transparent',
-                  borderLeft: item.isActive ? '4px solid #1a237e' : '4px solid transparent',
+                  borderRadius: 2,
+                  my: 0.5,
+                  backgroundColor: item.isActive ? 'rgba(79, 195, 247, 0.1)' : 'transparent',
+                  borderLeft: item.isActive ? '4px solid #4fc3f7' : '4px solid transparent',
                   pl: item.isActive ? 1.5 : 2.5,
+                  transition: 'all 0.2s ease',
                   '&:hover': {
-                    backgroundColor: 'rgba(26, 35, 126, 0.05)',
+                    backgroundColor: 'rgba(79, 195, 247, 0.05)',
+                    transform: 'translateX(4px)'
                   },
                 }}
               >
                 <ListItemIcon
                   sx={{
                     minWidth: '40px',
-                    color: item.isActive ? '#1a237e' : 'inherit'
+                    color: item.isActive ? '#4fc3f7' : 'rgba(0, 0, 0, 0.6)',
+                    '& .MuiSvgIcon-root': {
+                      fontSize: 22
+                    }
                   }}
                 >
                   {item.icon}
@@ -331,7 +413,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <Typography 
                       variant="body2" 
                       sx={{ 
-                        fontWeight: item.isActive ? 600 : 400 
+                        fontWeight: item.isActive ? 700 : 500,
+                        color: item.isActive ? '#203a43' : 'rgba(0, 0, 0, 0.7)'
                       }}
                     >
                       {item.name}
@@ -343,7 +426,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           ))}
         </List>
         
-        <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)', my: 1 }} />
+        <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)', my: 2, mx: 2 }} />
         
         {/* System Navigation */}
         <List sx={{ px: 2 }}>
@@ -351,11 +434,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             variant="overline" 
             sx={{ 
               pl: 2, 
-              color: 'rgba(0, 0, 0, 0.6)', 
-              fontWeight: 600 
+              color: '#203a43', 
+              fontWeight: 700,
+              letterSpacing: '1px',
+              fontSize: '0.75rem'
             }}
           >
-            System
+            SYSTEM
           </Typography>
           
           {systemNavItems.map((item) => (
@@ -368,21 +453,27 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             >
               <ListItemButton
                 sx={{
-                  minHeight: 48,
+                  minHeight: 52,
                   px: 2.5,
-                  borderRadius: 1,
-                  backgroundColor: item.isActive ? 'rgba(26, 35, 126, 0.08)' : 'transparent',
-                  borderLeft: item.isActive ? '4px solid #1a237e' : '4px solid transparent',
+                  borderRadius: 2,
+                  my: 0.5,
+                  backgroundColor: item.isActive ? 'rgba(79, 195, 247, 0.1)' : 'transparent',
+                  borderLeft: item.isActive ? '4px solid #4fc3f7' : '4px solid transparent',
                   pl: item.isActive ? 1.5 : 2.5,
+                  transition: 'all 0.2s ease',
                   '&:hover': {
-                    backgroundColor: 'rgba(26, 35, 126, 0.05)',
+                    backgroundColor: 'rgba(79, 195, 247, 0.05)',
+                    transform: 'translateX(4px)'
                   },
                 }}
               >
                 <ListItemIcon
                   sx={{
                     minWidth: '40px',
-                    color: item.isActive ? '#1a237e' : 'inherit'
+                    color: item.isActive ? '#4fc3f7' : 'rgba(0, 0, 0, 0.6)',
+                    '& .MuiSvgIcon-root': {
+                      fontSize: 22
+                    }
                   }}
                 >
                   {item.icon}
@@ -392,7 +483,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <Typography 
                       variant="body2" 
                       sx={{ 
-                        fontWeight: item.isActive ? 600 : 400 
+                        fontWeight: item.isActive ? 700 : 500,
+                        color: item.isActive ? '#203a43' : 'rgba(0, 0, 0, 0.7)'
                       }}
                     >
                       {item.name}
@@ -409,14 +501,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <ListItemButton
             onClick={handleLogout}
             sx={{
-              py: 1,
-              px: 2,
-              borderRadius: 1,
-              border: '1px solid rgba(244, 67, 54, 0.5)',
+              py: 1.5,
+              px: 2.5,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.08) 0%, rgba(244, 67, 54, 0.12) 100%)',
               color: '#f44336',
+              boxShadow: '0 2px 8px rgba(244, 67, 54, 0.15)',
+              transition: 'all 0.2s ease',
               '&:hover': {
-                backgroundColor: 'rgba(244, 67, 54, 0.08)',
-                borderColor: '#f44336',
+                backgroundColor: 'rgba(244, 67, 54, 0.15)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(244, 67, 54, 0.2)',
               },
             }}
           >
@@ -425,7 +520,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </ListItemIcon>
             <ListItemText 
               primary={
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
                   Logout
                 </Typography>
               } 
@@ -447,35 +542,61 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             backgroundImage: 'none',
             backgroundColor: '#ffffff',
             border: '1px solid rgba(0, 0, 0, 0.08)',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-            borderRadius: 2,
-            minWidth: 200,
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+            borderRadius: 3,
+            minWidth: 220,
+            overflow: 'hidden',
+            '& .MuiMenuItem-root': {
+              transition: 'background-color 0.2s ease',
+            }
           },
         }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
+        <Box sx={{ px: 2, py: 1.5, backgroundColor: 'rgba(0, 0, 0, 0.02)', borderBottom: '1px solid rgba(0, 0, 0, 0.05)' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar 
+              sx={{ 
+                width: 40, 
+                height: 40, 
+                backgroundColor: '#203a43',
+                mr: 1.5
+              }}
+            >
+              <Typography sx={{ fontWeight: 700, color: '#fff' }}>JS</Typography>
+            </Avatar>
+            <Box>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#203a43' }}>
+                John Smith
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.6)' }}>
+                Student Consultant
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
         <MenuItem onClick={handleMenuClose} sx={{ py: 1.5 }}>
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: '#4fc3f7' }}>
             <PersonIcon fontSize="small" />
           </ListItemIcon>
-          <Typography variant="body2">My Profile</Typography>
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>My Profile</Typography>
         </MenuItem>
         
         <MenuItem onClick={handleMenuClose} sx={{ py: 1.5 }}>
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: '#4fc3f7' }}>
             <SettingsIcon fontSize="small" />
           </ListItemIcon>
-          <Typography variant="body2">Settings</Typography>
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>Settings</Typography>
         </MenuItem>
         
         <Divider />
         
         <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
           <ListItemIcon>
-            <LogoutIcon fontSize="small" color="error" />
+            <LogoutIcon fontSize="small" sx={{ color: '#f44336' }} />
           </ListItemIcon>
-          <Typography variant="body2" color="error">Logout</Typography>
+          <Typography variant="body2" sx={{ color: '#f44336', fontWeight: 500 }}>Logout</Typography>
         </MenuItem>
       </Menu>
       
@@ -492,21 +613,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             backgroundImage: 'none',
             backgroundColor: '#ffffff',
             border: '1px solid rgba(0, 0, 0, 0.08)',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-            borderRadius: 2,
-            minWidth: 300,
-            maxWidth: 360,
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+            borderRadius: 3,
+            minWidth: 320,
+            maxWidth: 380,
+            overflow: 'hidden'
           },
         }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <Box sx={{ px: 2, py: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Notifications</Typography>
+        <Box sx={{ px: 2, py: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.02)', borderBottom: '1px solid rgba(0, 0, 0, 0.05)' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#203a43' }}>Notifications</Typography>
           <Typography 
             variant="caption" 
-            color="primary" 
-            sx={{ cursor: 'pointer', fontWeight: 500 }}
+            sx={{ cursor: 'pointer', fontWeight: 600, color: '#4fc3f7', transition: 'all 0.2s ease', '&:hover': { color: '#0288d1' } }}
             onClick={handleMenuClose}
           >
             Mark all as read
@@ -516,7 +637,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <Divider />
         
         {notifications.map((notification) => (
-          <MenuItem key={notification.id} onClick={handleMenuClose} sx={{ py: 1.5, px: 2 }}>
+          <MenuItem key={notification.id} onClick={handleMenuClose} sx={{ py: 2, px: 2, borderBottom: '1px solid rgba(0, 0, 0, 0.04)', '&:hover': { backgroundColor: 'rgba(79, 195, 247, 0.04)' } }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 0.5 }}>
                 {notification.isNew && (
@@ -525,18 +646,20 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     sx={{ 
                       width: 8, 
                       height: 8, 
-                      bgcolor: '#1a237e', 
+                      bgcolor: '#4fc3f7', 
                       borderRadius: '50%',
-                      mr: 1,
-                      mt: 1
+                      mr: 1.5,
+                      mt: 1,
+                      boxShadow: '0 0 0 3px rgba(79, 195, 247, 0.2)'
                     }} 
                   />
                 )}
                 <Typography 
                   variant="body2" 
                   sx={{ 
-                    fontWeight: notification.isNew ? 600 : 400,
-                    pl: notification.isNew ? 0 : 2.5
+                    fontWeight: notification.isNew ? 600 : 500,
+                    pl: notification.isNew ? 0 : 2.5,
+                    color: notification.isNew ? '#203a43' : 'rgba(0, 0, 0, 0.7)'
                   }}
                 >
                   {notification.message}
@@ -544,8 +667,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </Box>
               <Typography 
                 variant="caption" 
-                color="textSecondary" 
-                sx={{ pl: notification.isNew ? 2.5 : 2.5 }}
+                sx={{ 
+                  pl: notification.isNew ? 2.5 : 2.5,
+                  color: 'rgba(0, 0, 0, 0.5)',
+                  fontWeight: 500
+                }}
               >
                 {notification.time}
               </Typography>
@@ -555,18 +681,22 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         
         <Divider />
         
-        <Box sx={{ p: 1.5, textAlign: 'center' }}>
+        <Box sx={{ p: 2, textAlign: 'center', backgroundColor: 'rgba(79, 195, 247, 0.04)' }}>
           <Typography 
             component={Link} 
             to="/admin/notifications"
             variant="body2" 
-            color="primary"
             onClick={handleMenuClose}
             sx={{ 
               cursor: 'pointer', 
-              fontWeight: 500,
+              fontWeight: 600,
               textDecoration: 'none',
-              '&:hover': { textDecoration: 'underline' }
+              color: '#4fc3f7',
+              transition: 'all 0.2s ease',
+              '&:hover': { 
+                color: '#0288d1',
+                textDecoration: 'none' 
+              }
             }}
           >
             View All Notifications
@@ -581,13 +711,31 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           flexGrow: 1,
           overflow: 'auto',
           minHeight: '100vh',
-          backgroundColor: '#f5f7fa',
-          pt: '64px', // AppBar height
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%)',
+          pt: '70px', // AppBar height
+          pb: 4,
           transition: theme.transitions.create('margin', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
-          ml: open ? `${drawerWidth}px` : 0,
+          ml: 'auto',
+          mr: 'auto',
+          maxWidth: '1300px',
+          width: '100%',
+          px: { xs: 2, sm: 3, md: 4 }, // Responsive horizontal padding
+          '& > *': {
+            animation: 'fadeIn 0.5s ease-out'
+          },
+          '@keyframes fadeIn': {
+            '0%': {
+              opacity: 0,
+              transform: 'translateY(10px)'
+            },
+            '100%': {
+              opacity: 1,
+              transform: 'translateY(0)'
+            }
+          }
         }}
       >
         {children}

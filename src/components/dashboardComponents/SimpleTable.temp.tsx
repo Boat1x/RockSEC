@@ -51,6 +51,15 @@ export default function SimpleTable() {
   const [selectedThreatId, setSelectedThreatId] = useState<number | null>(null);
   const open = Boolean(anchorEl);
 
+  // Sample threat data
+  const [threats] = useState<Threat[]>([
+    { id: 1, name: 'Advanced Phishing Campaign', date: '2025-02-26', source: 'Email Gateway', severity: 'High', status: 'Investigating' },
+    { id: 2, name: 'Ransomware Detected', date: '2025-02-24', source: 'Endpoint Scanner', severity: 'Critical', status: 'Resolved' },
+    { id: 3, name: 'DDoS Attempt', date: '2025-02-25', source: 'Network Monitor', severity: 'Medium', status: 'Mitigated' },
+    { id: 4, name: 'Suspicious Login Activity', date: '2025-02-27', source: 'User Authentication', severity: 'Medium', status: 'Investigating' },
+    { id: 5, name: 'Outdated Software Vulnerability', date: '2025-02-26', source: 'Vulnerability Scanner', severity: 'Low', status: 'Pending' },
+  ]);
+
   // Handle menu open
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, threatId: number) => {
     setAnchorEl(event.currentTarget);
@@ -62,15 +71,6 @@ export default function SimpleTable() {
     setAnchorEl(null);
     setSelectedThreatId(null);
   };
-
-  // Sample threat data
-  const [threats] = useState<Threat[]>([
-    { id: 1, name: 'Advanced Phishing Campaign', date: '2025-02-26', source: 'Email Gateway', severity: 'High', status: 'Investigating' },
-    { id: 2, name: 'Ransomware Detected', date: '2025-02-24', source: 'Endpoint Scanner', severity: 'Critical', status: 'Resolved' },
-    { id: 3, name: 'DDoS Attempt', date: '2025-02-25', source: 'Network Monitor', severity: 'Medium', status: 'Mitigated' },
-    { id: 4, name: 'Suspicious Login Activity', date: '2025-02-27', source: 'User Authentication', severity: 'Medium', status: 'Investigating' },
-    { id: 5, name: 'Outdated Software Vulnerability', date: '2025-02-26', source: 'Vulnerability Scanner', severity: 'Low', status: 'Pending' },
-  ]);
 
   // Handle add threat
   const addThreat = () => {
@@ -182,18 +182,16 @@ export default function SimpleTable() {
     );
   };
 
-
-
-
-
   return (
-    <Card sx={{ 
-      borderRadius: 3, 
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
-      overflow: 'hidden',
-      border: '1px solid rgba(0, 0, 0, 0.05)',
-      background: '#fff',
-    }}>
+    <Card 
+      sx={{ 
+        borderRadius: 3, 
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+        overflow: 'hidden',
+        border: '1px solid rgba(0, 0, 0, 0.05)',
+        background: '#fff',
+      }}
+    >
       <Box 
         sx={{ 
           display: 'flex', 
@@ -232,66 +230,143 @@ export default function SimpleTable() {
           Add Threat
         </Button>
       </Box>
+
       <CardContent sx={{ p: 0 }}>
-        <TableContainer sx={{ 
-          overflow: 'auto',
-          maxHeight: '600px',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px'
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-            borderRadius: '4px'
-          },
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: 'rgba(0, 0, 0, 0.03)'
-          }
-        }}>
-          <Table sx={{ minWidth: 650 }}>
+        <TableContainer 
+          component={Paper} 
+          sx={{ 
+            boxShadow: 'none',
+            maxHeight: 400,
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: alpha(theme.palette.primary.main, 0.2),
+              borderRadius: '4px',
+            },
+          }}
+        >
+          <Table sx={{ minWidth: 650 }} aria-label="threat table">
             <TableHead>
-              <TableRow sx={{ 
-                backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                '& .MuiTableCell-root': {
-                  fontWeight: 700,
-                  color: '#203a43',
-                  textTransform: 'uppercase',
-                  fontSize: '0.75rem',
-                  letterSpacing: '0.5px',
-                  py: 2
-                }
-              }}>
-                <TableCell padding="normal" sx={{ pl: 3 }}>Threat Details</TableCell>
-                <TableCell padding="normal">Date</TableCell>
-                <TableCell padding="normal">Source</TableCell>
-                <TableCell padding="normal">Severity</TableCell>
-                <TableCell padding="normal">Status</TableCell>
-                <TableCell padding="normal" align="center" sx={{ pr: 3 }}>Actions</TableCell>
+              <TableRow sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.02) }}>
+                <TableCell 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: theme.palette.grey[700],
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    py: 1.5,
+                  }}
+                >
+                  Threat Details
+                </TableCell>
+                <TableCell 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: theme.palette.grey[700],
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    py: 1.5,
+                  }}
+                >
+                  Date
+                </TableCell>
+                <TableCell 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: theme.palette.grey[700],
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    py: 1.5,
+                  }}
+                >
+                  Source
+                </TableCell>
+                <TableCell 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: theme.palette.grey[700],
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    py: 1.5,
+                  }}
+                >
+                  Severity
+                </TableCell>
+                <TableCell 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: theme.palette.grey[700],
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    py: 1.5,
+                  }}
+                >
+                  Status
+                </TableCell>
+                <TableCell 
+                  align="right"
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: theme.palette.grey[700],
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    py: 1.5,
+                  }}
+                >
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {threats.map((threat) => (
-                <TableRow 
+                <TableRow
                   key={threat.id}
                   sx={{ 
-                    '&:hover': { backgroundColor: 'rgba(79, 195, 247, 0.04)' },
-                    transition: 'background-color 0.2s ease',
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.04)'
+                    '&:last-child td, &:last-child th': { border: 0 },
+                    '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.02) },
+                    transition: 'background-color 0.2s',
                   }}
                 >
                   <TableCell 
                     component="th" 
                     scope="row"
                     sx={{ 
-                      fontWeight: threat.severity === 'Critical' ? 700 : 600,
-                      color: threat.severity === 'Critical' ? '#d32f2f' : '#203a43',
-                      pl: 3
+                      fontWeight: 600, 
+                      color: theme.palette.grey[800],
+                      borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
                     }}
                   >
                     {threat.name}
                   </TableCell>
-                  <TableCell sx={{ color: 'rgba(0, 0, 0, 0.7)', fontWeight: 500 }}>{threat.date}</TableCell>
-                  <TableCell sx={{ color: 'rgba(0, 0, 0, 0.7)', fontWeight: 500 }}>{threat.source}</TableCell>
+                  <TableCell 
+                    sx={{ 
+                      color: theme.palette.grey[700],
+                      borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                    }}
+                  >
+                    {threat.date}
+                  </TableCell>
+                  <TableCell 
+                    sx={{ 
+                      color: theme.palette.grey[700],
+                      borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                    }}
+                  >
+                    {threat.source}
+                  </TableCell>
                   <TableCell 
                     sx={{ 
                       borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
@@ -306,36 +381,38 @@ export default function SimpleTable() {
                   >
                     {renderStatusChip(threat.status)}
                   </TableCell>
-                  <TableCell align="center" sx={{ pr: 3 }}>
+                  <TableCell 
+                    align="right"
+                    sx={{ 
+                      borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                    }}
+                  >
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <Tooltip title="More actions">
-                        <IconButton 
-                          onClick={(e) => handleMenuOpen(e, threat.id)}
+                        <IconButton
                           size="small"
+                          onClick={(event) => handleMenuOpen(event, threat.id)}
                           sx={{ 
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                            transition: 'all 0.2s ease',
+                            color: theme.palette.grey[600],
                             '&:hover': { 
-                              backgroundColor: 'rgba(0, 0, 0, 0.08)',
-                              transform: 'scale(1.1)'
-                            }
+                              backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                              color: theme.palette.primary.main,
+                            },
                           }}
                         >
                           <MoreVertIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete threat">
-                        <IconButton 
-                          color="error" 
-                          onClick={() => handleDeleteThreat(threat.id)}
+                        <IconButton
                           size="small"
+                          onClick={() => handleDeleteThreat(threat.id)}
                           sx={{ 
                             color: theme.palette.error.main,
                             '&:hover': { 
                               backgroundColor: alpha(theme.palette.error.main, 0.1),
                             },
                             ml: 1,
-
                           }}
                         >
                           <DeleteIcon fontSize="small" />
@@ -348,10 +425,10 @@ export default function SimpleTable() {
             </TableBody>
           </Table>
         </TableContainer>
-        
+
         <Menu
           anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
+          open={open}
           onClose={handleMenuClose}
           PaperProps={{
             elevation: 3,
@@ -364,7 +441,7 @@ export default function SimpleTable() {
                 fontSize: '0.875rem',
                 py: 1,
               },
-            }
+            },
           }}
         >
           <MenuItem onClick={handleMenuClose}>

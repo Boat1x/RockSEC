@@ -14,7 +14,10 @@ import ConsultantNavbar from "./components/ConsultantNavbar";
 import ConsultantSidebar from "./components/ConsultantSidebar";
 
 // Pages
-import AdminDashboard from "./pages/AdminDashboard";
+// import AdminDashboard from "./pages/AdminDashboard";
+// import SimpleDashboard from "./pages/SimpleDashboard";
+// import AdminDashboardSimple from "./pages/AdminDashboardSimple";
+import AdminDashboardV2 from "./pages/AdminDashboardV2";
 import BusinessAssessment from "./pages/BusinessAssessment";
 import ConsultantDashboard from "./pages/ConsultantDashboard";
 import Dashboard from "./pages/Dashboard";
@@ -65,7 +68,7 @@ const App: React.FC = () => {
       children: [
         {
           path: "dashboard",
-          element: <AdminDashboard />,
+          element: <AdminDashboardV2 />,
         },
         {
           path: "consultants",

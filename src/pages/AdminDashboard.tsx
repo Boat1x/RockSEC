@@ -1,26 +1,27 @@
+import React, { useState, useEffect } from 'react';
 import {
-    Avatar,
-    Box,
-    Button,
-    Chip,
-    Divider,
-    Grid,
-    IconButton,
-    InputAdornment,
-    LinearProgress,
-    List,
-    ListItem,
-    ListItemAvatar,
-    ListItemIcon,
-    ListItemText,
-    Paper,
-    Tab,
-    Tabs,
-    TextField,
-    Typography,
-    useTheme
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Grid as MuiGrid,
+  IconButton,
+  InputAdornment,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+  useTheme
 } from '@mui/material';
-import React, { useState } from 'react';
+import { styled } from '@mui/material/styles';
 
 // Icons
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -38,6 +39,100 @@ import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WarningIcon from '@mui/icons-material/Warning';
+import SecurityIcon from '@mui/icons-material/Security';
+
+// Components
+import SimpleTable from '../components/dashboardComponents/SimpleTable.backend';
+import ActivityLogList from '../components/dashboardComponents/ActivityLogList';
+import ConsultantsList from '../components/dashboardComponents/ConsultantsList';
+import SystemHealthList from '../components/dashboardComponents/SystemHealthList';
+import { 
+  ThreatApi, 
+  ClientApi, 
+  SecurityMetricApi, 
+  SecurityScanApi, 
+  SystemApi, 
+  ActivityLogApi, 
+  UserApi
+} from '../backend';
+
+// Import directly from the source file
+import type { ApiResponse } from '../backend/utils/apiResponse';
+
+// Create a properly typed Grid component to fix TypeScript errors
+interface GridProps {
+  container?: boolean;
+  item?: boolean;
+  xs?: number;
+  sm?: number;
+  md?: number;
+  lg?: number;
+  xl?: number;
+  spacing?: number;
+  sx?: any;
+  children?: React.ReactNode;
+  [key: string]: any;
+}
+
+const Grid = (props: GridProps) => {
+  return <MuiGrid {...props} />;
+};
+
+// Define interfaces for our state types
+interface ClientStats {
+  total: number;
+  active: number;
+  pending: number;
+  inactive: number;
+}
+
+interface ThreatStats {
+  total: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+}
+
+interface ScanStats {
+  total: number;
+  completed: number;
+  inProgress: number;
+  scheduled: number;
+}
+
+interface SystemStats {
+  total: number;
+  healthy: number;
+  warning: number;
+  critical: number;
+}
+
+interface Consultant {
+  id: string;
+  name: string;
+  role: string;
+  status: string;
+  avatarUrl?: string;
+}
+
+// Use the type from the backend
+type ActivityLog = {
+  id: string;
+  type: string;
+  description: string;
+  timestamp: string;
+  userId: string;
+};
+
+interface Client {
+  id: number;
+  name: string;
+  type: string;
+  consultants: number;
+  securityScore: number;
+  status: string;
+}
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -69,296 +164,285 @@ const AdminDashboard: React.FC = () => {
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [clientStats, setClientStats] = useState<ClientStats>({ total: 0, active: 0, pending: 0, inactive: 0 });
+  const [threatStats, setThreatStats] = useState<ThreatStats>({ total: 0, critical: 0, high: 0, medium: 0, low: 0 });
+  const [scanStats, setScanStats] = useState<ScanStats>({ total: 0, completed: 0, inProgress: 0, scheduled: 0 });
+  const [systemStats, setSystemStats] = useState<SystemStats>({ total: 0, healthy: 0, warning: 0, critical: 0 });
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [consultantsList, setConsultantsList] = useState<Consultant[]>([]);
+  const [clientsList, setClientsList] = useState<Client[]>([]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  // Mock data for demonstration
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        // In a real app, you would get the user ID from context
+        const userId = 'admin123';
+        const clientId = 'client123';
+        
+        // Fetch client statistics
+        const clientResponse: ApiResponse<any> = await ClientApi.getClientStatistics(userId);
+        if (clientResponse.success && clientResponse.data) {
+          setClientStats({
+            total: clientResponse.data.totalClients,
+            active: clientResponse.data.byStatus.active,
+            pending: clientResponse.data.byStatus.pending,
+            inactive: clientResponse.data.byStatus.inactive
+          });
+        }
+        
+        // Fetch threat statistics
+        const threatResponse: ApiResponse<any> = await ThreatApi.getThreatStatistics(clientId, userId);
+        if (threatResponse.success && threatResponse.data) {
+          setThreatStats({
+            total: threatResponse.data.totalThreats,
+            critical: threatResponse.data.bySeverity.critical,
+            high: threatResponse.data.bySeverity.high,
+            medium: threatResponse.data.bySeverity.medium,
+            low: threatResponse.data.bySeverity.low
+          });
+        }
+
+        // Fetch security scan statistics
+        const scanResponse: ApiResponse<any> = await SecurityScanApi.getScanStatistics(clientId, userId);
+        if (scanResponse.success && scanResponse.data) {
+          setScanStats({
+            total: scanResponse.data.totalScans,
+            completed: scanResponse.data.byStatus.completed || 0,
+            inProgress: scanResponse.data.byStatus.inProgress || 0,
+            scheduled: scanResponse.data.byStatus.scheduled || 0
+          });
+        }
+
+        // Fetch system statistics
+        const systemResponse: ApiResponse<any> = await SystemApi.getSystemStatistics(clientId, userId);
+        if (systemResponse.success && systemResponse.data) {
+          setSystemStats({
+            total: systemResponse.data.totalSystems,
+            healthy: systemResponse.data.byStatus.protected || 0,
+            warning: systemResponse.data.byStatus.atRisk || 0,
+            critical: systemResponse.data.byStatus.compromised || 0
+          });
+        }
+
+        // Fetch recent activity logs
+        const activityResponse: ApiResponse<any> = await ActivityLogApi.getAllLogs(5, userId);
+        if (activityResponse.success && activityResponse.data) {
+          setActivityLogs(activityResponse.data);
+        }
+
+        // Fetch consultants - using mock data for now as the API method might not exist
+        // In a real implementation, this would use the proper API method
+        setConsultantsList([
+          { id: '1', name: 'John Smith', role: 'Senior Consultant', status: 'Active' },
+          { id: '2', name: 'Emma Wilson', role: 'Student Consultant', status: 'Active' },
+          { id: '3', name: 'Michael Chen', role: 'Faculty Advisor', status: 'Active' },
+          { id: '4', name: 'Sarah Johnson', role: 'Student Consultant', status: 'On Leave' },
+          { id: '5', name: 'David Williams', role: 'Student Consultant', status: 'Active' },
+        ]);
+        
+        // When the API method is available, use this code:
+        // const consultantResponse: ApiResponseType<any> = await UserApi.getUsersByType('consultant', userId);
+        // if (consultantResponse.success && consultantResponse.data) {
+        //   setConsultantsList(consultantResponse.data.map(user => ({
+        //     id: user.id,
+        //     name: user.name || 'Unknown',
+        //     role: user.role || 'Consultant',
+        //     status: user.status || 'Active',
+        //     avatarUrl: user.avatarUrl
+        //   })));
+        // }
+        
+        // Mock client data for now - will be replaced with real API call in future
+        setClientsList([
+          { id: 1, name: 'Harbor Dental Group', type: 'Healthcare', consultants: 2, securityScore: 68, status: 'Active' },
+          { id: 2, name: 'Riverside Café', type: 'Restaurant', consultants: 1, securityScore: 85, status: 'Active' },
+          { id: 3, name: 'Westfield Law Partners', type: 'Professional Services', consultants: 2, securityScore: 72, status: 'Active' },
+          { id: 4, name: 'Grove Elementary School', type: 'Education', consultants: 3, securityScore: 90, status: 'Active' },
+          { id: 5, name: 'Sunrise Senior Living', type: 'Healthcare', consultants: 2, securityScore: 63, status: 'Pending Review' },
+        ]);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchDashboardData();
+  }, []);
+
+  // Dashboard statistics - using real data from backend
   const adminStats = [
-    { title: 'Total Consultants', value: '24', icon: <PersonIcon />, color: theme.palette.primary.main },
-    { title: 'Active Clients', value: '47', icon: <BusinessIcon />, color: theme.palette.secondary.main },
-    { title: 'Security Assessments', value: '156', icon: <DomainVerificationIcon />, color: '#7e57c2' },
-    { title: 'Active Issues', value: '12', icon: <WarningIcon />, color: '#f44336' },
+    { title: 'Total Consultants', value: consultantsList.length.toString(), icon: <PersonIcon />, color: theme.palette.primary.main },
+    { title: 'Active Clients', value: loading ? '...' : clientStats.active.toString(), icon: <BusinessIcon />, color: theme.palette.secondary.main },
+    { title: 'Security Scans', value: loading ? '...' : scanStats.total.toString(), icon: <DomainVerificationIcon />, color: '#7e57c2' },
+    { title: 'Active Threats', value: loading ? '...' : threatStats.total.toString(), icon: <SecurityIcon />, color: '#f44336' },
   ];
 
-  // Mock consultant data
-  const consultants = [
-    { id: 1, name: 'John Smith', role: 'Senior Consultant', clients: 5, status: 'Active' },
-    { id: 2, name: 'Emma Wilson', role: 'Student Consultant', clients: 3, status: 'Active' },
-    { id: 3, name: 'Michael Chen', role: 'Faculty Advisor', clients: 0, status: 'Active' },
-    { id: 4, name: 'Sarah Johnson', role: 'Student Consultant', clients: 2, status: 'On Leave' },
-    { id: 5, name: 'David Williams', role: 'Student Consultant', clients: 4, status: 'Active' },
-  ];
-
-  // Mock client data
-  const clients = [
-    { id: 1, name: 'Harbor Dental Group', type: 'Healthcare', consultants: 2, securityScore: 68, status: 'Active' },
-    { id: 2, name: 'Riverside Café', type: 'Restaurant', consultants: 1, securityScore: 85, status: 'Active' },
-    { id: 3, name: 'Westfield Law Partners', type: 'Professional Services', consultants: 2, securityScore: 72, status: 'Active' },
-    { id: 4, name: 'Grove Elementary School', type: 'Education', consultants: 3, securityScore: 90, status: 'Active' },
-    { id: 5, name: 'Sunrise Senior Living', type: 'Healthcare', consultants: 2, securityScore: 63, status: 'Pending Review' },
-  ];
-
-  // Mock recent activity
-  const recentActivity = [
-    { action: 'New client onboarded', details: 'Lakeside Pharmacy added to client list', time: '2 hours ago', user: 'John Smith' },
-    { action: 'Assessment completed', details: 'Grove Elementary School assessment finalized', time: '3 hours ago', user: 'Emma Wilson' },
-    { action: 'New vulnerability detected', details: 'Critical issue found at Harbor Dental Group', time: '5 hours ago', user: 'System Alert' },
-    { action: 'User account created', details: 'New consultant account for Thomas Lee', time: 'Yesterday', user: 'Admin' },
-    { action: 'Client status updated', details: 'Riverside Café marked as compliant', time: 'Yesterday', user: 'David Williams' },
-  ];
-
-  // Mock pending approvals
+  // Pending approvals
   const pendingApprovals = [
-    { id: 1, type: 'New Consultant', name: 'Alexandra Rodriguez', details: 'Student, Cybersecurity Major', submitted: '2 days ago' },
-    { id: 2, type: 'Assessment Report', client: 'Sunrise Senior Living', submitted: '1 day ago', consultant: 'John Smith' },
-    { id: 3, type: 'Client Request', client: 'Metro Credit Union', details: 'Requesting security assessment', submitted: '3 days ago' },
+    { id: 1, title: 'Security Assessment Report', client: 'Harbor Dental Group', requestedBy: 'John Smith', date: '2023-04-25' },
+    { id: 2, title: 'Vulnerability Scan Results', client: 'Riverside Café', requestedBy: 'Emma Wilson', date: '2023-04-24' },
+    { id: 3, title: 'Compliance Certificate', client: 'Grove Elementary School', requestedBy: 'Michael Chen', date: '2023-04-23' },
   ];
-
-  // Filter consultants based on search term
-  const filteredConsultants = consultants.filter(
-    consultant => consultant.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Filter clients based on search term
-  const filteredClients = clients.filter(
-    client => client.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
-            Admin Dashboard
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            Manage consultants, clients, and system settings
-          </Typography>
-        </Box>
+      <Paper
+        variant="outlined"
+        sx={{ borderRadius: 2, p: 3, mb: 4 }}
+      >
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+          Admin Dashboard
+        </Typography>
         
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="contained" 
-            startIcon={<SettingsIcon />}
-            sx={{ 
-              borderRadius: 2,
-              backgroundColor: theme.palette.grey[800],
-              '&:hover': {
-                backgroundColor: theme.palette.grey[900],
-              }
-            }}
-          >
-            System Settings
-          </Button>
-        </Box>
-      </Box>
-      
-      {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {adminStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Paper
-              elevation={1}
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                background: '#ffffff',
-                border: '1px solid rgba(0, 0, 0, 0.04)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: '0 8px 20px rgba(0, 0, 0, 0.1)',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Avatar sx={{ bgcolor: `${stat.color}15`, color: stat.color, mr: 2 }}>
-                  {stat.icon}
-                </Avatar>
-                <Box>
-                  <Typography variant="h4" component="p" sx={{ fontWeight: 700, color: stat.color }}>
+        {/* Stats Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {adminStats.map((stat, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <Paper
+                elevation={1}
+                sx={{
+                  p: 2,
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  borderLeft: `4px solid ${stat.color}`,
+                  borderRadius: 2
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Box sx={{ mr: 1, color: stat.color }}>
+                    {stat.icon}
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     {stat.value}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {stat.title}
-                  </Typography>
                 </Box>
-              </Box>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-      
-      {/* Admin Actions */}
-      <Paper sx={{ p: 3, borderRadius: 2, mb: 4 }}>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-          Quick Actions
-        </Typography>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {stat.title}
+                </Typography>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+        
+        {/* Quick Actions & Pending Approvals */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <Button 
-              variant="outlined" 
+              variant="contained" 
               fullWidth 
               startIcon={<PersonIcon />}
-              sx={{ 
-                justifyContent: 'flex-start', 
-                py: 1.5,
-                borderRadius: 2,
-                borderColor: theme.palette.primary.main,
-                color: theme.palette.primary.main,
-                '&:hover': {
-                  backgroundColor: `${theme.palette.primary.main}10`,
-                },
-              }}
+              sx={{ p: 1.5, borderRadius: 2, textTransform: 'none', justifyContent: 'flex-start' }}
             >
-              Add Consultant
+              <Box sx={{ textAlign: 'left' }}>
+                <Typography variant="subtitle2">Add New Client</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Create a new client profile
+                </Typography>
+              </Box>
             </Button>
           </Grid>
+          
           <Grid item xs={12} sm={6} md={3}>
             <Button 
-              variant="outlined" 
+              variant="contained" 
               fullWidth 
-              startIcon={<BusinessIcon />}
-              sx={{ 
-                justifyContent: 'flex-start', 
-                py: 1.5,
-                borderRadius: 2,
-                borderColor: theme.palette.secondary.main,
-                color: theme.palette.secondary.main,
-                '&:hover': {
-                  backgroundColor: `${theme.palette.secondary.main}10`,
-                },
-              }}
+              color="secondary"
+              startIcon={<DesignServicesIcon />}
+              sx={{ p: 1.5, borderRadius: 2, textTransform: 'none', justifyContent: 'flex-start' }}
             >
-              Register Client
+              <Box sx={{ textAlign: 'left' }}>
+                <Typography variant="subtitle2">New Assessment</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Start a security assessment
+                </Typography>
+              </Box>
             </Button>
           </Grid>
+          
           <Grid item xs={12} sm={6} md={3}>
             <Button 
-              variant="outlined" 
+              variant="contained" 
               fullWidth 
-              startIcon={<AnalyticsIcon />}
-              sx={{ 
-                justifyContent: 'flex-start', 
-                py: 1.5,
-                borderRadius: 2,
-                borderColor: '#7e57c2',
-                color: '#7e57c2',
-                '&:hover': {
-                  backgroundColor: 'rgba(126, 87, 194, 0.1)',
-                },
-              }}
+              color="info"
+              startIcon={<SecurityIcon />}
+              sx={{ p: 1.5, borderRadius: 2, textTransform: 'none', justifyContent: 'flex-start' }}
             >
-              View Reports
+              <Box sx={{ textAlign: 'left' }}>
+                <Typography variant="subtitle2">Security Scan</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Run a new security scan
+                </Typography>
+              </Box>
             </Button>
           </Grid>
+          
           <Grid item xs={12} sm={6} md={3}>
             <Button 
-              variant="outlined" 
+              variant="contained" 
               fullWidth 
+              color="warning"
               startIcon={<AdminPanelSettingsIcon />}
-              sx={{ 
-                justifyContent: 'flex-start', 
-                py: 1.5,
-                borderRadius: 2,
-                borderColor: theme.palette.grey[700],
-                color: theme.palette.grey[700],
-                '&:hover': {
-                  backgroundColor: 'rgba(97, 97, 97, 0.1)',
-                },
-              }}
+              sx={{ p: 1.5, borderRadius: 2, textTransform: 'none', justifyContent: 'flex-start' }}
             >
-              Manage Users
+              <Box sx={{ textAlign: 'left' }}>
+                <Typography variant="subtitle2">Program Settings</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Manage security program
+                </Typography>
+              </Box>
             </Button>
           </Grid>
         </Grid>
-      </Paper>
-      
-      {/* Pending Approvals */}
-      <Paper sx={{ p: 3, borderRadius: 2, mb: 4 }}>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-          Pending Approvals
-        </Typography>
-        <List>
-          {pendingApprovals.map((item, index) => (
-            <ListItem 
-              key={item.id}
-              sx={{ 
-                py: 2,
-                borderLeft: '4px solid',
-                borderLeftColor: 
-                  item.type === 'New Consultant' ? theme.palette.primary.main : 
-                  item.type === 'Assessment Report' ? theme.palette.secondary.main : '#ff9800',
-                pl: 2,
-                backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                borderRadius: '0 4px 4px 0',
-                mb: 2
-              }}
-            >
-              <ListItemAvatar>
-                <Avatar sx={{ 
-                  bgcolor: 
-                    item.type === 'New Consultant' ? `${theme.palette.primary.main}15` : 
-                    item.type === 'Assessment Report' ? `${theme.palette.secondary.main}15` : 
-                    'rgba(255, 152, 0, 0.1)',
-                  color: 
-                    item.type === 'New Consultant' ? theme.palette.primary.main : 
-                    item.type === 'Assessment Report' ? theme.palette.secondary.main : 
-                    '#ff9800',
-                }}>
-                  {item.type === 'New Consultant' ? <PersonIcon /> : 
-                   item.type === 'Assessment Report' ? <DesignServicesIcon /> : 
-                   <BusinessIcon />}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    {item.type}
-                  </Typography>
-                }
-                secondary={
-                  <Box sx={{ mt: 0.5 }}>
-                    <Typography variant="body2">
-                      {item.type === 'New Consultant' ? `${item.name} - ${item.details}` : 
-                       item.type === 'Assessment Report' ? `For ${item.client} by ${item.consultant}` : 
-                       `${item.client} - ${item.details}`}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Submitted {item.submitted}
-                    </Typography>
+        
+        {/* Pending Approvals */}
+        <Paper
+          variant="outlined"
+          sx={{ borderRadius: 2, p: 2, mb: 4 }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+            Pending Approvals
+          </Typography>
+          
+          {pendingApprovals.length > 0 ? (
+            <List>
+              {pendingApprovals.map((approval) => (
+                <ListItem key={approval.id} sx={{ px: 2, py: 1 }}>
+                  <ListItemIcon>
+                    <AccessTimeIcon color="warning" />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={approval.title} 
+                    secondary={`Client: ${approval.client} • Requested by: ${approval.requestedBy}`}
+                  />
+                  <Box>
+                    <Button size="small" variant="contained" color="primary" sx={{ mr: 1 }}>
+                      Approve
+                    </Button>
+                    <Button size="small" variant="outlined">
+                      Review
+                    </Button>
                   </Box>
-                }
-              />
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button 
-                  variant="contained" 
-                  size="small"
-                  color="primary"
-                  sx={{ borderRadius: 2 }}
-                >
-                  Approve
-                </Button>
-                <Button 
-                  variant="outlined" 
-                  size="small"
-                  color="error"
-                  sx={{ borderRadius: 2 }}
-                >
-                  Reject
-                </Button>
-              </Box>
-            </ListItem>
-          ))}
-        </List>
-      </Paper>
-      
-      {/* Main Tabs */}
-      <Paper sx={{ borderRadius: 2 }}>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
+              No pending approvals
+            </Typography>
+          )}
+        </Paper>
+        
+        {/* Tabs */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs 
             value={tabValue} 
@@ -367,321 +451,231 @@ const AdminDashboard: React.FC = () => {
             variant="scrollable"
             scrollButtons="auto"
           >
-            <Tab label="Consultants" />
             <Tab label="Clients" />
-            <Tab label="Activity Log" />
+            <Tab label="Consultants" />
+            <Tab label="Activity" />
             <Tab label="System Status" />
           </Tabs>
         </Box>
         
-        {/* Consultants Tab */}
-        <TabPanel value={tabValue} index={0}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-            <TextField
-              placeholder="Search consultants..."
-              variant="outlined"
-              size="small"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{ width: 300 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button 
-                variant="outlined" 
-                startIcon={<FilterListIcon />}
-                size="small"
-                sx={{ borderRadius: 2 }}
-              >
-                Filter
-              </Button>
-              <Button 
-                variant="contained" 
-                startIcon={<AddIcon />}
-                size="small"
-                sx={{ borderRadius: 2 }}
-              >
-                Add Consultant
-              </Button>
-            </Box>
-          </Box>
-          
-          <Paper variant="outlined" sx={{ borderRadius: 2 }}>
-            <List>
-              {filteredConsultants.map((consultant, index) => (
-                <React.Fragment key={consultant.id}>
-                  <ListItem
-                    secondaryAction={
-                      <IconButton edge="end">
-                        <MoreVertIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
-                        {consultant.name.charAt(0)}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                            {consultant.name}
-                          </Typography>
-                          <Chip 
-                            label={consultant.status} 
-                            size="small"
-                            sx={{ 
-                              ml: 2,
-                              backgroundColor: consultant.status === 'Active' 
-                                ? 'rgba(76, 175, 80, 0.1)' 
-                                : 'rgba(255, 152, 0, 0.1)',
-                              color: consultant.status === 'Active' ? '#4caf50' : '#ff9800',
-                              fontSize: '0.75rem',
-                              height: 24
-                            }}
-                          />
-                        </Box>
-                      }
-                      secondary={
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5, alignItems: 'center' }}>
-                          <Typography variant="body2" color="textSecondary">
-                            {consultant.role} • {consultant.clients} {consultant.clients === 1 ? 'client' : 'clients'}
-                          </Typography>
-                          <Box>
-                            <Button 
-                              variant="text" 
-                              size="small" 
-                              sx={{ minWidth: 'auto', mr: 1 }}
-                            >
-                              Edit
-                            </Button>
-                            <Button 
-                              variant="text" 
-                              size="small" 
-                              sx={{ minWidth: 'auto' }}
-                            >
-                              View
-                            </Button>
-                          </Box>
-                        </Box>
-                      }
-                    />
-                  </ListItem>
-                  {index < filteredConsultants.length - 1 && <Divider component="li" />}
-                </React.Fragment>
-              ))}
-            </List>
-          </Paper>
-        </TabPanel>
-        
         {/* Clients Tab */}
-        <TabPanel value={tabValue} index={1}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-            <TextField
-              placeholder="Search clients..."
-              variant="outlined"
-              size="small"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{ width: 300 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button 
-                variant="outlined" 
-                startIcon={<FilterListIcon />}
-                size="small"
-                sx={{ borderRadius: 2 }}
+        <TabPanel value={tabValue} index={0}>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Paper
+                variant="outlined"
+                sx={{ borderRadius: 2, p: 3 }}
               >
-                Filter
-              </Button>
-              <Button 
-                variant="contained" 
-                startIcon={<AddIcon />}
-                size="small"
-                sx={{ borderRadius: 2 }}
-              >
-                Add Client
-              </Button>
-            </Box>
-          </Box>
-          
-          <Paper variant="outlined" sx={{ borderRadius: 2 }}>
-            <List>
-              {filteredClients.map((client, index) => (
-                <React.Fragment key={client.id}>
-                  <ListItem
-                    secondaryAction={
-                      <IconButton edge="end">
-                        <MoreVertIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: theme.palette.secondary.main }}>
-                        <BusinessIcon />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    Client List
+                  </Typography>
+                  <Box>
+                    <TextField
+                      size="small"
+                      placeholder="Search clients..."
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{ mr: 1 }}
+                    />
+                    <Button
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      size="small"
+                    >
+                      Add New
+                    </Button>
+                  </Box>
+                </Box>
+                
+                {loading ? (
+                  <LinearProgress />
+                ) : (
+                  <List>
+                    {clientsList.map((client, index) => (
+                      <ListItem key={client.id} sx={{ bgcolor: index % 2 === 0 ? 'rgba(0, 0, 0, 0.02)' : 'transparent', borderRadius: 1 }}>
+                        <ListItemAvatar>
+                          <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
+                            <BusinessIcon />
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText 
+                          primary={client.name} 
+                          secondary={`Type: ${client.type} • Consultants: ${client.consultants}`}
+                        />
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                            {client.name}
+                          <Typography variant="body2" sx={{ mr: 2 }}>
+                            Security Score: 
+                            <Typography component="span" sx={{ ml: 0.5, fontWeight: 600, color: 
+                              client.securityScore >= 80 ? 'success.main' : 
+                              client.securityScore >= 60 ? 'warning.main' : 'error.main' 
+                            }}>
+                              {client.securityScore}%
+                            </Typography>
                           </Typography>
                           <Chip 
                             label={client.status} 
-                            size="small"
-                            sx={{ 
-                              ml: 2,
-                              backgroundColor: client.status === 'Active' 
-                                ? 'rgba(76, 175, 80, 0.1)' 
-                                : 'rgba(255, 152, 0, 0.1)',
-                              color: client.status === 'Active' ? '#4caf50' : '#ff9800',
-                              fontSize: '0.75rem',
-                              height: 24
-                            }}
+                            color={client.status === 'Active' ? 'success' : 'warning'} 
+                            size="small" 
+                            sx={{ mr: 1 }} 
                           />
+                          <IconButton size="small">
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
                         </Box>
-                      }
-                      secondary={
-                        <Box sx={{ mt: 0.5 }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="body2" color="textSecondary">
-                              {client.type} • {client.consultants} {client.consultants === 1 ? 'consultant' : 'consultants'}
-                            </Typography>
-                            <Box>
-                              <Button 
-                                variant="text" 
-                                size="small" 
-                                sx={{ minWidth: 'auto', mr: 1 }}
-                              >
-                                Edit
-                              </Button>
-                              <Button 
-                                variant="text" 
-                                size="small" 
-                                sx={{ minWidth: 'auto' }}
-                              >
-                                View
-                              </Button>
-                            </Box>
-                          </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                            <Typography variant="body2" sx={{ mr: 1 }}>Security Score:</Typography>
-                            <Box sx={{ flexGrow: 1, mr: 2 }}>
-                              <LinearProgress
-                                variant="determinate"
-                                value={client.securityScore}
-                                sx={{
-                                  height: 8,
-                                  borderRadius: 4,
-                                  backgroundColor: 'rgba(0, 0, 0, 0.08)',
-                                  '& .MuiLinearProgress-bar': {
-                                    backgroundColor: 
-                                      client.securityScore >= 80 ? '#4caf50' :
-                                      client.securityScore >= 60 ? '#ff9800' : '#f44336'
-                                  }
-                                }}
-                              />
-                            </Box>
-                            <Typography 
-                              variant="body2" 
-                              sx={{ 
-                                fontWeight: 600, 
-                                color:
-                                  client.securityScore >= 80 ? '#4caf50' :
-                                  client.securityScore >= 60 ? '#ff9800' : '#f44336' 
-                              }}
-                            >
-                              {client.securityScore}%
-                            </Typography>
-                          </Box>
-                        </Box>
-                      }
-                    />
-                  </ListItem>
-                  {index < filteredClients.length - 1 && <Divider component="li" />}
-                </React.Fragment>
-              ))}
-            </List>
-          </Paper>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </Paper>
+            </Grid>
+          </Grid>
         </TabPanel>
         
-        {/* Activity Log Tab */}
-        <TabPanel value={tabValue} index={2}>
-          <Paper variant="outlined" sx={{ borderRadius: 2 }}>
-            <List>
-              {recentActivity.map((activity, index) => (
-                <React.Fragment key={index}>
-                  <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar sx={{ 
-                        bgcolor: 
-                          activity.action.includes('New') ? 'rgba(25, 118, 210, 0.1)' : 
-                          activity.action.includes('completed') ? 'rgba(76, 175, 80, 0.1)' :
-                          activity.action.includes('vulnerability') ? 'rgba(244, 67, 54, 0.1)' :
-                          'rgba(255, 152, 0, 0.1)',
-                        color:
-                          activity.action.includes('New') ? theme.palette.primary.main : 
-                          activity.action.includes('completed') ? '#4caf50' :
-                          activity.action.includes('vulnerability') ? '#f44336' :
-                          '#ff9800',
-                      }}>
-                        {activity.action.includes('New') ? <AddIcon /> : 
-                         activity.action.includes('completed') ? <CheckCircleIcon /> :
-                         activity.action.includes('vulnerability') ? <ErrorIcon /> :
-                         <AccessTimeIcon />}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {activity.action}
-                        </Typography>
-                      }
-                      secondary={
-                        <Box sx={{ mt: 0.5 }}>
-                          <Typography variant="body2" paragraph>
-                            {activity.details}
-                          </Typography>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Typography variant="caption" color="textSecondary">
-                              {activity.time}
-                            </Typography>
-                            <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                              By: {activity.user}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      }
+        {/* Consultants Tab */}
+        <TabPanel value={tabValue} index={1}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={7}>
+              <Paper
+                variant="outlined"
+                sx={{ borderRadius: 2, p: 3 }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    Security Consultants
+                  </Typography>
+                  <Box>
+                    <TextField
+                      size="small"
+                      placeholder="Search consultants..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{ mr: 1 }}
                     />
+                    <Button
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      size="small"
+                    >
+                      Add New
+                    </Button>
+                  </Box>
+                </Box>
+                
+                <ConsultantsList 
+                  consultants={consultantsList}
+                  loading={loading}
+                  searchTerm={searchTerm}
+                />
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12} md={5}>
+              <Paper
+                variant="outlined"
+                sx={{ borderRadius: 2, p: 3, height: '100%' }}
+              >
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                  Consultant Performance
+                </Typography>
+                
+                <List>
+                  <ListItem>
+                    <ListItemText 
+                      primary="Total Clients Managed" 
+                      secondary="Across all consultants"
+                    />
+                    <Chip label={clientStats.total} color="primary" />
                   </ListItem>
-                  {index < recentActivity.length - 1 && <Divider component="li" />}
-                </React.Fragment>
-              ))}
-            </List>
-          </Paper>
+                  
+                  <ListItem>
+                    <ListItemText 
+                      primary="Average Security Score" 
+                      secondary="All clients"
+                    />
+                    <Chip label="76%" color="success" />
+                  </ListItem>
+                  
+                  <ListItem>
+                    <ListItemText 
+                      primary="Assessments Completed" 
+                      secondary="Last 30 days"
+                    />
+                    <Chip label="12" color="info" />
+                  </ListItem>
+                  
+                  <ListItem>
+                    <ListItemText 
+                      primary="Pending Assessments" 
+                      secondary="Requiring attention"
+                    />
+                    <Chip label="5" color="warning" />
+                  </ListItem>
+                </List>
+              </Paper>
+            </Grid>
+          </Grid>
+        </TabPanel>
+        
+        {/* Activity Tab */}
+        <TabPanel value={tabValue} index={2}>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Paper
+                variant="outlined"
+                sx={{ borderRadius: 2, p: 3 }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    Recent Activity
+                  </Typography>
+                  <Box>
+                    <Button
+                      variant="outlined"
+                      startIcon={<FilterListIcon />}
+                      size="small"
+                      sx={{ mr: 1 }}
+                    >
+                      Filter
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<AnalyticsIcon />}
+                      size="small"
+                    >
+                      Export
+                    </Button>
+                  </Box>
+                </Box>
+                
+                <ActivityLogList 
+                  activities={activityLogs}
+                  loading={loading}
+                />
+              </Paper>
+            </Grid>
+          </Grid>
         </TabPanel>
         
         {/* System Status Tab */}
         <TabPanel value={tabValue} index={3}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={5}>
+              <SimpleTable />
+            </Grid>
+            <Grid item xs={12} md={7}>
               <Paper
                 variant="outlined"
                 sx={{ borderRadius: 2, p: 3, height: '100%' }}
@@ -689,120 +683,14 @@ const AdminDashboard: React.FC = () => {
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                   System Health
                 </Typography>
-                <List dense>
-                  <ListItem>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: '#4caf50' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="Database Status" 
-                      secondary="Online - Performance Optimal"
-                    />
-                    <Chip label="100%" color="success" size="small" />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: '#4caf50' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="API Services" 
-                      secondary="All endpoints operational"
-                    />
-                    <Chip label="100%" color="success" size="small" />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: '#4caf50' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="Authentication System" 
-                      secondary="Working normally"
-                    />
-                    <Chip label="100%" color="success" size="small" />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon>
-                      <WarningIcon sx={{ color: '#ff9800' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="Notification Service" 
-                      secondary="Minor delays observed"
-                    />
-                    <Chip label="94%" color="warning" size="small" />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: '#4caf50' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="File Storage" 
-                      secondary="Operating normally"
-                    />
-                    <Chip label="100%" color="success" size="small" />
-                  </ListItem>
-                </List>
-              </Paper>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Paper
-                variant="outlined"
-                sx={{ borderRadius: 2, p: 3, height: '100%' }}
-              >
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                  Recent System Updates
-                </Typography>
-                <List dense>
-                  <ListItem>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: '#4caf50' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="Security Patch 2.4.1" 
-                      secondary="Applied yesterday - Vulnerability fixes"
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: '#4caf50' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="Database Optimization" 
-                      secondary="Completed 2 days ago - Performance improved by 15%"
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: '#4caf50' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="UI/UX Enhancements" 
-                      secondary="Deployed 5 days ago - Client dashboard updates"
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: '#4caf50' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary="New Feature: Assessment Templates" 
-                      secondary="Added 1 week ago - Standardized templates for consultants"
-                    />
-                  </ListItem>
-                </List>
-                <Box sx={{ mt: 2 }}>
-                  <Button variant="outlined" size="small" fullWidth>
-                    View All System Updates
-                  </Button>
-                </Box>
-              </Paper>
-            </Grid>
-            
-            <Grid item xs={12}>
-              <Paper
-                variant="outlined"
-                sx={{ borderRadius: 2, p: 3 }}
-              >
+                
+                <SystemHealthList 
+                  systemStats={systemStats}
+                  loading={loading}
+                />
+                
+                <Divider sx={{ my: 2 }} />
+                
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                   System Resources
                 </Typography>

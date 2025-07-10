@@ -1,5 +1,6 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
+    Alert,
     Box,
     Button,
     Checkbox,
@@ -13,13 +14,47 @@ import {
     Paper,
     Select,
     SelectChangeEvent,
+    Snackbar,
     TextField,
     Typography
 } from '@mui/material';
-import { generateClient } from 'aws-amplify/api';
 import React, { useEffect, useState } from 'react';
-import { type Schema } from '../../amplify/data/resource';
-const client = generateClient<Schema>();
+
+// GraphQL operations
+const createTodoMutation = `mutation CreateTodo($input: CreateTodoInput!) {
+  createTodo(input: $input) {
+    id
+    content
+    isDone
+    priority
+    createdAt
+  }
+}`;
+
+const listTodosQuery = `query ListTodos {
+  listTodos {
+    items {
+      id
+      content
+      isDone
+      priority
+      createdAt
+    }
+  }
+}`;
+
+const updateTodoMutation = `mutation UpdateTodo($input: UpdateTodoInput!) {
+  updateTodo(input: $input) {
+    id
+    isDone
+  }
+}`;
+
+const deleteTodoMutation = `mutation DeleteTodo($input: DeleteTodoInput!) {
+  deleteTodo(input: $input) {
+    id
+  }
+}`;
 
 interface Todo {
   id: string;
@@ -29,10 +64,37 @@ interface Todo {
   createdAt: string;
 }
 
+// Simple function to make GraphQL requests
+async function executeGraphQL(query: string, variables?: any) {
+  const config = window.AMPLIFY_CONFIG;
+  const response = await fetch(config.apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': config.apiKey
+    },
+    body: JSON.stringify({
+      query,
+      variables
+    })
+  });
+
+  const result = await response.json();
+  console.log('GraphQL result:', result);
+  
+  if (result.errors) {
+    throw new Error(result.errors[0].message);
+  }
+  
+  return result;
+}
+
 const TodoComponent: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [content, setContent] = useState('');
   const [priority, setPriority] = useState('low');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTodos();
@@ -40,10 +102,21 @@ const TodoComponent: React.FC = () => {
 
   const fetchTodos = async () => {
     try {
-      const todoData = await client.models.Todo.list();
-      setTodos(todoData.data);
+      setLoading(true);
+      setError(null);
+      console.log("Fetching todos...");
+      
+      const result = await executeGraphQL(listTodosQuery);
+      console.log("Todo data received:", result);
+      
+      if (result.data?.listTodos?.items) {
+        setTodos(result.data.listTodos.items);
+      }
     } catch (error) {
       console.error('Error fetching todos:', error);
+      setError('Failed to load todos: ' + (error instanceof Error ? error.message : String(error)));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,37 +125,60 @@ const TodoComponent: React.FC = () => {
     if (!content.trim()) return;
 
     try {
-      await client.models.Todo.create({
+      setLoading(true);
+      setError(null);
+      
+      const todoInput = {
         content: content.trim(),
         isDone: false,
         priority,
-        createdAt: new Date().toISOString(),
-      });
+        createdAt: new Date().toISOString()
+      };
+      
+      console.log("Creating todo:", todoInput);
+      
+      const result = await executeGraphQL(createTodoMutation, { input: todoInput });
+      console.log("Todo created successfully:", result);
+      
       setContent('');
       fetchTodos();
     } catch (error) {
       console.error('Error creating todo:', error);
+      setError('Failed to create todo: ' + (error instanceof Error ? error.message : String(error)));
+      setLoading(false);
     }
   };
 
   const handleToggleTodo = async (todo: Todo) => {
     try {
-      await client.models.Todo.update({
+      setLoading(true);
+      setError(null);
+      
+      const updateInput = {
         id: todo.id,
-        isDone: !todo.isDone,
-      });
+        isDone: !todo.isDone
+      };
+      
+      await executeGraphQL(updateTodoMutation, { input: updateInput });
       fetchTodos();
     } catch (error) {
       console.error('Error updating todo:', error);
+      setError('Failed to update todo: ' + (error instanceof Error ? error.message : String(error)));
+      setLoading(false);
     }
   };
 
   const handleDeleteTodo = async (id: string) => {
     try {
-      await client.models.Todo.delete({ id });
+      setLoading(true);
+      setError(null);
+      
+      await executeGraphQL(deleteTodoMutation, { input: { id } });
       fetchTodos();
     } catch (error) {
       console.error('Error deleting todo:', error);
+      setError('Failed to delete todo: ' + (error instanceof Error ? error.message : String(error)));
+      setLoading(false);
     }
   };
 
@@ -90,8 +186,19 @@ const TodoComponent: React.FC = () => {
     setPriority(event.target.value);
   };
 
+  const handleCloseError = () => {
+    setError(null);
+  };
+
   return (
     <Box>
+      {/* Error Snackbar */}
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseError}>
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
+
       {/* Add New Todo Section */}
       <Paper 
         elevation={0}
@@ -138,7 +245,7 @@ const TodoComponent: React.FC = () => {
             type="submit"
             variant="contained"
             fullWidth
-            disabled={!content.trim()}
+            disabled={!content.trim() || loading}
             sx={{
               py: 1,
               borderRadius: 1.5,
@@ -149,7 +256,7 @@ const TodoComponent: React.FC = () => {
               }
             }}
           >
-            Add Todo
+            {loading ? 'Adding...' : 'Add Todo'}
           </Button>
         </form>
       </Paper>
@@ -165,7 +272,7 @@ const TodoComponent: React.FC = () => {
         }}
       >
         <Typography variant="h6" sx={{ p: 3, pb: 2, fontWeight: 600 }}>
-          Todo List
+          Todo List {loading && '(Loading...)'}
         </Typography>
         <List sx={{ p: 0 }}>
           {todos.map((todo, index) => (
@@ -222,7 +329,7 @@ const TodoComponent: React.FC = () => {
               </ListItemSecondaryAction>
             </ListItem>
           ))}
-          {todos.length === 0 && (
+          {todos.length === 0 && !loading && (
             <ListItem>
               <ListItemText
                 primary={
