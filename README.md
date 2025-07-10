@@ -2,7 +2,7 @@
 
 RockSEC is a comprehensive cybersecurity consulting platform designed to connect students with local businesses, providing students with real-world experience while helping businesses improve their security posture.
 
-![RockSEC Platform]
+[RockSEC Platform]
 
 ## Overview
 
