@@ -1,144 +1,116 @@
-# RockSEC - Rocky Security Solutions
+# RockSEC
 
-RockSEC is a comprehensive cybersecurity consulting platform designed to connect students with local businesses, providing students with real-world experience while helping businesses improve their security posture.
+### Cybersecurity consulting workflows for students and local businesses
 
-[RockSEC Platform]
+RockSEC explores how a university cybersecurity program could coordinate student consultants, faculty oversight, and security assessments for community businesses. It combines a React interface with an AWS Amplify data model for clients, findings, reports, and activity records.
 
-## Overview
+**Status: educational prototype.** The repository demonstrates application structure, assessment interfaces, and data access patterns. Authentication, authorization, and several workflows remain demonstration implementations.
 
-Rocky Security Solutions (RockSEC) is an educational initiative that bridges the gap between cybersecurity education and practical application. The platform enables college students to gain valuable hands-on experience by conducting security assessments and implementing security programs for local businesses near the college. This dual-purpose platform benefits both the students' professional development and the cybersecurity posture of community businesses.
+[Explore the code](src) · [Assessment workflow](src/pages/BusinessAssessment.tsx) · [Data schema](amplify/data/resource.ts) · [Local setup](#local-setup)
 
-The platform features role-based access control with separate interfaces for administrators, student consultants, and business clients.
+## The problem
 
-## Features
+Student consulting programs need a shared place to organize engagements: who is working with each business, what was assessed, which recommendations need review, and how results are communicated. RockSEC models that workflow through consultant and administrator interfaces.
 
-### For Faculty Administrators
-- **Dashboard**: Comprehensive overview of student activities and client engagements
-- **Student Management**: Add, edit, and manage student consultants
-- **Client Management**: Organize and track local business clients
-- **Report Management**: Review and approve student-generated security assessment reports
-- **User Administration**: Control platform access and permissions
-- **Program Management**: Create and track educational security programs
-- **Security Settings**: Configure platform security settings
-- **Activity Logs**: Monitor student and system activities for educational assessment
+## What is in the repository
 
-### For Student Consultants
-- **Dashboard**: View assigned local businesses and assessment status
-- **Business Assessment**: Conduct real-world security assessments using standardized frameworks
-- **History**: Track assessment history and document professional experience
-- **Learning Hub**: Access security best practices and educational resources
-- **Threat Intelligence**: Research and apply knowledge about the latest security threats
-- **Client Management**: Gain experience managing client relationships
+| Area | Implementation |
+| --- | --- |
+| Business assessment | A multistep questionnaire covering business context, security maturity, staffing, and threat concerns, with a rule-based illustrative risk score. |
+| Consultant workspace | Dashboard, assessment, history, learning, and threat information routes. |
+| Administrator workspace | Pages for clients, consultants, users, reports, programs, activity logs, and security settings. |
+| Dashboard reporting | React chart and table components, API-backed statistics in the administrator dashboard, and sample data fallbacks. |
+| Data model | Typed Amplify models for users, consultants, clients, threats, systems, scan records, metrics, reports, approvals, and logs. |
+| Data access | Service modules for model operations and API wrappers for response handling and activity logging. |
 
-### For Local Business Clients
-- **Security Dashboard**: View assessment results and recommended actions
-- **Implementation Tracking**: Monitor progress of security improvements
-- **Resource Center**: Access educational materials about cybersecurity best practices
-- **Communication Portal**: Interact with student consultants and faculty advisors
+The threat information and report screens include sample content. The scan service manages scan records and their status; it does not run a vulnerability scanner.
 
-## Technology Stack
+## Start with these files
 
-RockSEC is built using modern web technologies:
+| File | What to inspect |
+| --- | --- |
+| [`src/App.tsx`](src/App.tsx) | Route composition, administrator and consultant layouts, and client-side route checks. |
+| [`src/pages/BusinessAssessment.tsx`](src/pages/BusinessAssessment.tsx) | Form state, step progression, and illustrative scoring logic. |
+| [`amplify/data/resource.ts`](amplify/data/resource.ts) | The domain schema and current authorization configuration. |
+| [`src/backend/services`](src/backend/services) | CRUD operations and aggregation helpers around the generated data client. |
+| [`src/backend/api`](src/backend/api) | Response wrappers and the application-facing API layer. |
+| [`src/pages/AdminDashboardV2.tsx`](src/pages/AdminDashboardV2.tsx) | Loading data, handling errors, and assembling dashboard views. |
+| [`src/context/AuthContext.tsx`](src/context/AuthContext.tsx) | Demo session state and role selection. |
 
-- **Frontend**: React with TypeScript, Vite for build tooling
-- **UI Framework**: Material-UI (MUI) for responsive design
-- **Routing**: React Router for navigation
-- **Backend**: AWS Amplify for serverless infrastructure
-- **Authentication**: Amazon Cognito
-- **Database**: Amazon DynamoDB
-- **API**: GraphQL with AWS AppSync
-- **Hosting**: AWS Amplify Hosting
+## Technology
 
-## Getting Started
+| Layer | Tools |
+| --- | --- |
+| Interface | React 18, TypeScript, Material UI |
+| Navigation and charts | React Router, Recharts |
+| Build tooling | Vite, TypeScript, ESLint |
+| Backend definitions | AWS Amplify Gen 2 |
+| Data access | Amplify Data / GraphQL |
+| Authentication scaffold | Amplify Auth resource; the current interface uses a separate demo login |
 
-### Prerequisites
-- Node.js (v16 or later)
-- npm or yarn
-- AWS account (for deployment)
+The modules under `src/backend/` are imported by the frontend. They are application data-access code, not a separately deployed API server or an authorization boundary.
 
-### Local Development
+## Local setup
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/RockSEC.git
-   cd RockSEC
-   ```
+### Requirements
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+- Git, Node.js, and npm compatible with the versions in [`package.json`](package.json) and [`package-lock.json`](package-lock.json).
+- An isolated backend configuration if you want to exercise data operations.
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+The repository does not currently pin a Node.js version.
 
-4. Open your browser and navigate to `http://localhost:5173`
+### Install
 
-### AWS Deployment
-
-The project is configured for easy deployment to AWS using Amplify:
-
-1. Initialize Amplify (if not already done):
-   ```bash
-   npx amplify init
-   ```
-
-2. Push your backend resources to AWS:
-   ```bash
-   npx amplify push
-   ```
-
-3. Deploy the frontend:
-   ```bash
-   npx amplify publish
-   ```
-
-For detailed deployment instructions, refer to the [AWS Amplify Documentation](https://docs.amplify.aws/).
-
-## Project Structure
-
-```
-RockSEC/
-├── amplify/              # AWS Amplify configuration
-├── public/               # Static assets
-├── src/
-│   ├── assets/           # Images, fonts, etc.
-│   ├── backend/          # Amplify backend resources
-│   ├── components/       # Reusable UI components
-│   ├── context/          # React context providers
-│   ├── pages/            # Application pages
-│   │   └── admin/        # Admin-specific pages
-│   ├── types/            # TypeScript type definitions
-│   ├── App.tsx           # Main application component
-│   ├── ThemeProvider.tsx # MUI theme configuration
-│   └── main.tsx          # Application entry point
-├── .gitignore            # Git ignore configuration
-├── package.json          # Project dependencies
-└── vite.config.ts        # Vite configuration
+```bash
+git clone https://github.com/Boat1x/RockSEC.git
+cd RockSEC
+npm ci
 ```
 
-## Security Considerations
+### Configure before starting
 
-- The platform implements role-based access control
-- Authentication is handled securely through Amazon Cognito
-- API access is restricted based on user permissions
-- Sensitive configuration files are excluded from version control
-- AWS resources are configured with least-privilege access
+[`src/main.tsx`](src/main.tsx) currently contains deployment-specific Amplify configuration. Replace it with configuration for an environment you own before running the application against a backend. There is no environment-variable template or fully isolated offline mode in this snapshot.
 
-## Contributing
+Use synthetic data while exploring the prototype. The demo login and current API authorization are not suitable for sensitive client records.
 
-We welcome contributions to RockSEC! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information.
+### Start the development server
 
-## License
+```bash
+npm run dev
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Open the local URL printed by Vite. The login flow is defined in [`src/context/AuthContext.tsx`](src/context/AuthContext.tsx); it uses demonstration accounts and browser storage.
 
-## Support
+### Available checks
 
-For support, please open an issue in the GitHub repository or contact the project maintainers.
+```bash
+npm run lint
+npm run build
+```
 
----
+`build` runs the TypeScript compiler followed by the Vite production build. After a successful build, `npm run preview` serves the generated frontend locally.
 
-Built with ❤️ by the RockSEC Team
+There is currently no automated test script or test suite committed in this repository. The commands above are project scripts, not a statement that this snapshot passes them.
+
+## Current boundaries
+
+- **Authentication:** login is simulated in the browser. The Amplify Auth resource exists, but the interface is not integrated with its identity flow.
+- **Authorization:** role checks control navigation; they do not enforce backend permissions. The data schema currently uses API-key authorization.
+- **Assessment output:** the questionnaire and score are illustrative. Report generation is simulated, and the form does not persist a completed assessment to the backend.
+- **Dashboard data:** some views use static records, and the administrator dashboard can fall back to sample values after API failures.
+- **Client workflow:** client components exist, but the routed client-detail page is a placeholder.
+- **Deployment:** [`amplify.yml`](amplify.yml) defines an Amplify Gen 2 pipeline. It requires an appropriately configured AWS environment; this repository does not include a verified public deployment.
+
+## Development priorities
+
+1. Integrate real identity sessions and enforce authorization in the backend.
+2. Move deployment configuration out of application source and remove configuration logging.
+3. Persist assessments and connect report review to the data model.
+4. Distinguish sample data from live data in the interface.
+5. Add tests for access boundaries, scoring, and data-access failure cases.
+
+## License and project history
+
+The repository includes an **MIT No Attribution (MIT-0)** license inherited from the AWS starter. See [`LICENSE`](LICENSE) for the exact terms. The existing contribution and conduct files also contain AWS starter material.
+
+Maintained by [Ryan Daich](https://github.com/Boat1x).
